@@ -1,0 +1,150 @@
+/* AuthForm.css */
+
+.auth-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 88vh;
+  padding: 2rem;
+  background-color: #f5f8ff;
+}
+
+.auth-card {
+  background-color: #fff;
+  padding: 2.5rem 2rem;
+  width: 100%;
+  max-width: 420px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.auth-title {
+  text-align: center;
+  font-size: 1.75rem;
+  color: #083081;
+  margin-bottom: 1.5rem;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group {
+  margin-bottom: 1.3rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.auth-input {
+  width: 100%;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  transition: border 0.3s;
+}
+
+.auth-input:focus {
+  outline: none;
+  border-color: #083081;
+}
+
+/* RADIO BUTTON STYLING */
+.radio-group {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-top: 0.5rem;
+}
+
+.radio-group label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.auth-button {
+  background-color: #083081;
+  color: white;
+  padding: 0.65rem 1.2rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-button:hover {
+  background-color: #0a47a9;
+  transform: translateY(-2px);
+}
+
+.auth-footer {
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.auth-footer a {
+  color: #083081;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.auth-footer a:hover {
+  text-decoration: underline;
+}
+
+.error-message {
+  background-color: #ffe0e0;
+  color: #b00020;
+  padding: 10px 15px;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media screen and (max-width: 480px) {
+  .auth-card {
+    padding: 2rem 1.5rem;
+  }
+
+  .auth-title {
+    font-size: 1.5rem;
+  }
+
+  .auth-button {
+    font-size: 0.9rem;
+  }
+
+  .radio-group {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

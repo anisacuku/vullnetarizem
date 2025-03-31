@@ -1,0 +1,78 @@
+.opportunity-detail {
+  max-width: 850px;
+  margin: 40px auto;
+  padding: 30px;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.opportunity-detail h2 {
+  font-size: 2rem;
+  color: #0a2a43;
+  margin-bottom: 15px;
+}
+
+.description {
+  font-size: 1.1rem;
+  color: #444;
+  margin-bottom: 25px;
+  line-height: 1.6;
+}
+
+.detail-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.info-tag {
+  display: flex;
+  align-items: center;
+  background-color: #f0f4ff;
+  color: #0a2a43;
+  padding: 10px 14px;
+  border-radius: 15px;
+  font-size: 0.95rem;
+  transition: transform 0.2s ease;
+}
+
+.info-tag:hover {
+  transform: scale(1.05);
+  background-color: #e0e9ff;
+}
+
+.icon {
+  margin-right: 8px;
+}
+
+.apply-button {
+  background-color: #0a2a43;
+  color: white;
+  padding: 12px 28px;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.apply-button:hover {
+  background-color: #0c3c66;
+  transform: scale(1.05);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
