@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import ScrollFadeIn from '../components/common/ScrollFadeIn'; // Adjust path if needed
+import ScrollFadeIn from '../components/common/ScrollFadeIn';
 import '../App.css';
 
 function HomePage() {
@@ -12,7 +12,7 @@ function HomePage() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
     >
-      {/* Hero section */}
+      {/* Seksioni Hero */}
       <motion.section
         className="hero-section"
         initial={{ y: -40, opacity: 0 }}
@@ -20,29 +20,29 @@ function HomePage() {
         transition={{ duration: 1 }}
       >
         <div className="hero-content floating">
-          <h1>AI-Powered Volunteer Matching</h1>
-          <p>Find the perfect volunteering opportunity that matches your skills and interests</p>
+          <h1>Sistemi Inteligjent i Vullnetarizmit</h1>
+          <p>Gjej mundësinë perfekte të vullnetarizmit që përputhet me aftësitë dhe interesat e tua</p>
           <div className="cta-buttons">
-            <Link to="/register" className="button primary">Get Started</Link>
-            <Link to="/about" className="button secondary">Learn More</Link>
+            <Link to="/register" className="button primary">Nis Tani</Link>
+            <Link to="/about" className="button secondary">Mëso Më Shumë</Link>
           </div>
         </div>
       </motion.section>
 
-      {/* How it works */}
+      {/* Si Funksionon */}
       <ScrollFadeIn>
         <section className="how-it-works">
-          <h2>How It Works</h2>
+          <h2>Si Funksionon?</h2>
           <div className="steps-container">
-            {["Create Your Profile", "Get Matched", "Start Volunteering"].map((title, idx) => (
+            {["Krijo Profilin", "Merr Përputhje", "Fillo Vullnetarizmin"].map((title, idx) => (
               <ScrollFadeIn delay={idx * 0.2} key={idx}>
                 <div className="step">
                   <div className="step-number">{idx + 1}</div>
                   <h3>{title}</h3>
                   <p>
-                    {idx === 0 && "Sign up and tell us about your skills and interests"}
-                    {idx === 1 && "Our AI analyzes your profile and finds the perfect opportunities"}
-                    {idx === 2 && "Apply to opportunities and make a difference in your community"}
+                    {idx === 0 && "Regjistrohu dhe na trego për aftësitë dhe interesat e tua."}
+                    {idx === 1 && "AI jonë analizon profilin tënd dhe gjen mundësitë ideale për ty."}
+                    {idx === 2 && "Apliko për mundësi dhe ndiko pozitivisht në komunitetin tënd."}
                   </p>
                 </div>
               </ScrollFadeIn>
@@ -51,27 +51,27 @@ function HomePage() {
         </section>
       </ScrollFadeIn>
 
-      {/* Features */}
+      {/* Veçoritë */}
       <ScrollFadeIn>
         <section className="features-section">
-          <h2>Key Features</h2>
+          <h2>Veçoritë Kryesore</h2>
           <div className="features-grid">
             {[
               {
-                title: "AI-Powered Matching",
-                desc: "Our advanced algorithms ensure you find opportunities that match your unique profile"
+                title: "Përputhje me AI",
+                desc: "Algoritmet tona të avancuara të ndihmojnë të gjesh mundësi të përshtatshme për profilin tënd."
               },
               {
-                title: "Skills Recognition",
-                desc: "We identify and leverage your skills to find the most suitable volunteer work"
+                title: "Njohja e Aftësive",
+                desc: "Ne identifikojmë dhe përdorim aftësitë e tua për të gjetur vullnetarizmin më të përshtatshëm."
               },
               {
-                title: "Impact Tracking",
-                desc: "Monitor the difference you make in your community through our tracking tools"
+                title: "Ndjekja e Ndikimit",
+                desc: "Monitoro ndikimin që po bën në komunitetin tënd me mjetet tona të raportimit."
               },
               {
-                title: "Community Building",
-                desc: "Connect with other volunteers and organizations making a difference in Albania"
+                title: "Ndërtimi i Komunitetit",
+                desc: "Lidhu me vullnetarë dhe organizata të tjera që po ndryshojnë Shqipërinë."
               },
             ].map((feature, idx) => (
               <ScrollFadeIn delay={idx * 0.2} key={idx}>

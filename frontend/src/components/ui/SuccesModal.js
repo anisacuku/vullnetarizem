@@ -1,5 +1,5 @@
 import React from 'react';
-import './SuccessModal.css';
+import './SuccesModal.css';
 
 const SuccessModal = ({ show, onClose }) => {
   if (!show) return null;

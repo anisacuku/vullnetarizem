@@ -5,11 +5,24 @@
   padding: 0;
 }
 
+html, body, #root {
+  height: 100%;
+}
+
 body {
   font-family: 'Segoe UI', Arial, sans-serif;
   line-height: 1.6;
   color: #333;
   background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 /* GLOBAL LAYOUT */
@@ -34,18 +47,24 @@ body {
 .header {
   background-color: #00264d;
   height: 60px;
-  display: flex;
-  align-items: center;
   width: 100%;
+  display: flex;
+  justify-content: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
 .header-container {
+  width: 100%;
+  max-width: 1400px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0 2rem;
-  width: 100%;
 }
+
+
 
 /* LOGO */
 .logo {
@@ -94,7 +113,7 @@ nav ul li button {
   font-size: 1rem;
 }
 
-/* HYR BUTTON (LOGIN/REGISTER MERGED) */
+/* HYR BUTTON */
 .nav-auth-button, .hyr-button {
   background-color: white;
   color: #083081;
@@ -117,7 +136,7 @@ nav ul li button {
   color: white;
   padding: 1rem 0;
   text-align: center;
-  margin-top: 2rem;
+  margin-top: auto;
 }
 
 /* BUTTONS */
@@ -292,6 +311,57 @@ nav ul li button {
   color: #555;
 }
 
+/* ABOUT PAGE */
+.about-page {
+  padding: 60px 24px;
+  max-width: 960px;
+  margin: 0 auto;
+  flex: 1;
+}
+
+.about-hero {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.about-title {
+  font-size: 2.8rem;
+  color: #0a2a43;
+  margin-bottom: 12px;
+}
+
+.about-subtitle {
+  font-size: 1.2rem;
+  color: #444;
+  line-height: 1.6;
+}
+
+.about-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.about-section h2 {
+  font-size: 1.6rem;
+  color: #0a2a43;
+  margin-bottom: 10px;
+}
+
+.about-section p {
+  font-size: 1.05rem;
+  color: #444;
+  line-height: 1.7;
+}
+
+.about-icon {
+  font-size: 2.2rem;
+  color: #083081;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: center;
+}
+
 /* RESPONSIVE */
 @media screen and (max-width: 768px) {
   .hero-section {
@@ -328,4 +398,71 @@ nav ul li button {
   .cta-buttons {
     justify-content: center;
   }
+ .stats-section {
+  padding: 4rem 1rem;
+  background-color: #f8f9fa;
+  text-align: center;
+}
+
+.stats-title {
+  font-size: 2rem;
+  color: #083081;
+  margin-bottom: 2rem;
+}
+
+.stats-grid {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.stat-box {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 12px;
+  width: 220px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease;
+  text-align: center;
+}
+
+.stat-box:hover {
+  transform: translateY(-5px);
+}
+
+.stat-icon {
+  font-size: 2rem;
+  color: #083081;
+  margin-bottom: 1rem;
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #0a2a43;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 0.5rem;
+}
+
+.stat-progress {
+  width: 100%;
+  height: 8px;
+  background-color: #e6eaf0;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.stat-progress-bar {
+  height: 100%;
+  background-color: #083081;
+  transition: width 1.5s ease;
+  border-radius: 5px;
+}
+
 }

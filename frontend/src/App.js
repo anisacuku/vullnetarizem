@@ -4,8 +4,10 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 
 import { AuthProvider } from './context/AuthContext';
 import Header from './components/common/Header';
+import Footer from './components/common/Footer';
 
 import HomePage from './pages/HomePage';
+import AboutPage from './pages/AboutPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
@@ -19,16 +21,21 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 
 function AppRoutes() {
   const location = useLocation();
-  const hideHeaderOn = ['/login', '/register'];
-  const shouldHideHeader = hideHeaderOn.includes(location.pathname);
+  const hideHeaderFooterOn = ['/login', '/register'];
+  const shouldHide = hideHeaderFooterOn.includes(location.pathname);
 
   return (
     <>
-      {!shouldHideHeader && <Header />}
+      {!shouldHide && <Header />}
+
       <Routes>
+        {/* Public routes */}
         <Route path="/" element={<HomePage />} />
+        <Route path="/about" element={<AboutPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/opportunities" element={<OpportunityListPage />} />
+        <Route path="/opportunities/:id" element={<OpportunityDetailPage />} />
 
         {/* Protected routes */}
         <Route
@@ -63,11 +70,9 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
-
-        {/* Public routes */}
-        <Route path="/opportunities" element={<OpportunityListPage />} />
-        <Route path="/opportunities/:id" element={<OpportunityDetailPage />} />
       </Routes>
+
+      {!shouldHide && <Footer />}
     </>
   );
 }

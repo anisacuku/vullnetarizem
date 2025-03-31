@@ -1,3 +1,4 @@
 id,email,name,password,user_type,skills,interests,availability
 1,acuku@epoka.al,Andi,$2b$12$FXyihRndKYZvtMNWyGAwTeGF9LmFNK4VmIoHaeVYA/RWkcLv5wjzi,volunteer,[],[],{}
 2,anisacuku07@gmail.com,Anisa Çuku,$2b$12$AQMa5C2RkowIfh37QTsR1eeJVvyp.hc5eEQEmvNldGFGQBGozPfnC,volunteer,[],[],{}
+3,test123@gmail.com,Test,$2b$12$WcwS/qzxSXwPvbBiyFJ8M.8U4cJ4A1zA1sOFk.hXkcv1DRILvkPGK,volunteer,[],[],{}

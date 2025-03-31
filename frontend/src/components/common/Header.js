@@ -1,3 +1,4 @@
+// src/components/common/Header.js
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
@@ -8,7 +9,7 @@ function Header() {
 
   return (
     <header className="header">
-      <div className="container header-container">
+      <div className="header-container">
         <Link to="/" className="logo">
           <img
             src={logo}
@@ -17,6 +18,7 @@ function Header() {
           />
           <span className="logo-text">Volunteer Matching</span>
         </Link>
+
         <nav>
           <ul>
             <li><Link to="/">Home</Link></li>

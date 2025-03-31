@@ -9,7 +9,7 @@ import {
   FaUsers
 } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext'; // ✅ adjust path if needed
-// import SuccessModal from '../../components/ui/SuccessModal';
+import SuccessModal from '../../components/ui/SuccesModal'; // Adjust the path if needed
 import './OpportunityDetail.css';
 
 function OpportunityDetail() {

@@ -5,11 +5,19 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+    try {
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
+    } catch (error) {
+      console.error("Error restoring user from localStorage:", error);
+      localStorage.removeItem('user'); // Clear potentially corrupted data
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -27,10 +35,30 @@ export const AuthProvider = ({ children }) => {
         body: formData
       });
 
-      const data = await response.json(); // ✅ You missed this line
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.detail || `Error ${response.status}: ${response.statusText}`;
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+
+      if (!data || !data.access_token) {
+        throw new Error('Invalid response: No access token received');
+      }
 
       const token = data.access_token;
-      const decoded = JSON.parse(atob(token.split('.')[1]));
+
+      // Safely decode the token
+      let decoded;
+      try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        decoded = JSON.parse(atob(base64));
+      } catch (tokenError) {
+        console.error("Token decode error:", tokenError);
+        throw new Error('Invalid token format');
+      }
 
       const userData = {
         email: decoded.sub,
@@ -40,9 +68,11 @@ export const AuthProvider = ({ children }) => {
 
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
+
+      return userData; // Return user data for component usage
     } catch (error) {
       console.error("Login failed:", error);
-      throw new Error('Login failed');
+      throw error; // Re-throw to allow components to handle errors
     }
   };
 
@@ -52,11 +82,11 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-// ✅ THIS FIXES YOUR ERROR!
+// Custom hook for using auth context
 export const useAuth = () => useContext(AuthContext);
