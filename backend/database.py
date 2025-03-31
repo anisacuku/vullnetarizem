@@ -10,6 +10,7 @@ DATA_DIR = "data"
 VOLUNTEERS_FILE = os.path.join(DATA_DIR, "volunteers.csv")
 ORGANIZATIONS_FILE = os.path.join(DATA_DIR, "organizations.csv")
 OPPORTUNITIES_FILE = os.path.join(DATA_DIR, "opportunities.csv")
+MATCHES_FILE = os.path.join(DATA_DIR, "matches.csv")
 
 # === Password hashing ===
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -19,6 +20,7 @@ os.makedirs(DATA_DIR, exist_ok=True)
 
 
 def init_data_files():
+    """Initialize data files with proper column structure if they don't exist."""
     if not os.path.exists(VOLUNTEERS_FILE):
         pd.DataFrame(columns=[
             'id', 'email', 'name', 'password', 'user_type',
@@ -38,19 +40,33 @@ def init_data_files():
             'date', 'duration', 'time_requirements'
         ]).to_csv(OPPORTUNITIES_FILE, index=False)
 
+    if not os.path.exists(MATCHES_FILE):
+        pd.DataFrame(columns=[
+            'id', 'volunteer_id', 'opportunity_id', 'match_score',
+            'status', 'volunteer_feedback', 'organization_feedback',
+            'created_at', 'updated_at'
+        ]).to_csv(MATCHES_FILE, index=False)
 
+
+# Initialize data files on module import
 init_data_files()
 
 
-# === Helpers ===
-def serialize_list(data): return json.dumps(data) if isinstance(data, list) else "[]"
+# === Serialization/Deserialization Helpers ===
+def serialize_list(data):
+    """Convert a list to a JSON string for storage in CSV."""
+    return json.dumps(data) if isinstance(data, list) else "[]"
 
 
-def serialize_dict(data): return json.dumps(data) if isinstance(data, dict) else "{}"
+def serialize_dict(data):
+    """Convert a dictionary to a JSON string for storage in CSV."""
+    return json.dumps(data) if isinstance(data, dict) else "{}"
 
 
 def deserialize_list(data):
-    if pd.isna(data) or not data: return []
+    """Convert a JSON string to a list from CSV storage."""
+    if pd.isna(data) or not data:
+        return []
     try:
         return json.loads(data)
     except:
@@ -58,45 +74,25 @@ def deserialize_list(data):
 
 
 def deserialize_dict(data):
-    if pd.isna(data) or not data: return {}
+    """Convert a JSON string to a dictionary from CSV storage."""
+    if pd.isna(data) or not data:
+        return {}
     try:
         return json.loads(data)
     except:
         return {}
 
 
-# === Password encoding/decoding for CSV storage ===
-def encode_password(password_hash):
-    """Encode a bcrypt hash for safe CSV storage"""
-    # Convert to bytes if it's a string
-    if isinstance(password_hash, str):
-        password_hash = password_hash.encode('utf-8')
-    # Base64 encode it for safe storage
-    return base64.b64encode(password_hash).decode('utf-8')
-
-
-def decode_password(encoded_hash):
-    """Decode a base64-encoded hash from CSV storage"""
-    try:
-        # Handle potential NaN values
-        if pd.isna(encoded_hash):
-            return None
-        # Decode base64 back to original hash
-        return base64.b64decode(encoded_hash).decode('utf-8')
-    except Exception as e:
-        print(f"Error decoding password hash: {e}")
-        return None
-
-
-# === User Lookup ===
+# === User Operations ===
 def get_user_by_email(email: str) -> Optional[Dict[str, Any]]:
+    """Get a user (volunteer or organization) by email."""
     try:
+        # First check volunteers
         df = pd.read_csv(VOLUNTEERS_FILE, dtype={'password': str, 'email': str})
-        match = df[df['email'] == email] 
+        match = df[df['email'] == email]
         if not match.empty:
             user = match.iloc[0].to_dict()
-            # Decode the password hash
-            user['password'] = decode_password(user.get('password'))
+            # Keep the password as is (we'll verify it directly)
             user['skills'] = deserialize_list(user.get('skills', '[]'))
             user['interests'] = deserialize_list(user.get('interests', '[]'))
             user['availability'] = deserialize_dict(user.get('availability', '{}'))
@@ -105,12 +101,11 @@ def get_user_by_email(email: str) -> Optional[Dict[str, Any]]:
         print(f"Volunteer lookup error: {e}")
 
     try:
+        # Then check organizations
         df = pd.read_csv(ORGANIZATIONS_FILE, dtype={'password': str, 'email': str})
         match = df[df['email'] == email]
         if not match.empty:
             user = match.iloc[0].to_dict()
-            # Decode the password hash
-            user['password'] = decode_password(user.get('password'))
             return user
     except Exception as e:
         print(f"Organization lookup error: {e}")
@@ -118,14 +113,37 @@ def get_user_by_email(email: str) -> Optional[Dict[str, Any]]:
     return None
 
 
-# === User Creation ===
+def get_user_by_id(user_id: int, user_type: str) -> Optional[Dict[str, Any]]:
+    """Get a user by ID and type."""
+    try:
+        file_path = VOLUNTEERS_FILE if user_type == "volunteer" else ORGANIZATIONS_FILE
+        df = pd.read_csv(file_path)
+        match = df[df['id'] == user_id]
+        if not match.empty:
+            user = match.iloc[0].to_dict()
+
+            # Process volunteer-specific fields
+            if user_type == "volunteer":
+                user['skills'] = deserialize_list(user.get('skills', '[]'))
+                user['interests'] = deserialize_list(user.get('interests', '[]'))
+                user['availability'] = deserialize_dict(user.get('availability', '{}'))
+
+            return user
+    except Exception as e:
+        print(f"User lookup error: {e}")
+
+    return None
+
+
 def create_user(user_data: Dict[str, Any]) -> Dict[str, Any]:
+    """Create a new user (volunteer or organization)."""
     if user_data.get("user_type") == "organization":
         return create_organization(user_data)
     return create_volunteer(user_data)
 
 
 def create_volunteer(data: Dict[str, Any]) -> Dict[str, Any]:
+    """Create a new volunteer user."""
     try:
         df = pd.read_csv(VOLUNTEERS_FILE)
         new_id = int(df['id'].max()) + 1 if not df.empty else 1
@@ -134,10 +152,8 @@ def create_volunteer(data: Dict[str, Any]) -> Dict[str, Any]:
         storage_data = data.copy()
         storage_data['id'] = new_id
 
-        # Hash and encode the password for safe storage
-        raw_password = data['password']
-        hashed_password = pwd_context.hash(raw_password)
-        storage_data['password'] = encode_password(hashed_password)
+        # Hash the password (already hashed in auth.py)
+        storage_data['password'] = data['password']  # This is already hashed
 
         # Serialize complex data
         storage_data['skills'] = serialize_list(data.get('skills', []))
@@ -148,16 +164,19 @@ def create_volunteer(data: Dict[str, Any]) -> Dict[str, Any]:
         df = pd.concat([df, pd.DataFrame([storage_data])], ignore_index=True)
         df.to_csv(VOLUNTEERS_FILE, index=False)
 
-        # For the return value, keep the original password hash format
-        data['id'] = new_id
-        data['password'] = hashed_password  # Store the raw hash for the returned object
-        return data
+        # For the return value
+        result = data.copy()
+        result['id'] = new_id
+        if 'password' in result:
+            del result['password']  # Don't return the password
+        return result
     except Exception as e:
         print(f"Error creating volunteer: {e}")
         return {}
 
 
 def create_organization(data: Dict[str, Any]) -> Dict[str, Any]:
+    """Create a new organization user."""
     try:
         df = pd.read_csv(ORGANIZATIONS_FILE)
         new_id = int(df['id'].max()) + 1 if not df.empty else 1
@@ -166,32 +185,32 @@ def create_organization(data: Dict[str, Any]) -> Dict[str, Any]:
         storage_data = data.copy()
         storage_data['id'] = new_id
 
-        # Hash and encode the password
-        raw_password = data['password']
-        hashed_password = pwd_context.hash(raw_password)
-        storage_data['password'] = encode_password(hashed_password)
+        # Hash the password (already hashed in auth.py)
+        storage_data['password'] = data['password']  # This is already hashed
 
         # Add to dataframe and save
         df = pd.concat([df, pd.DataFrame([storage_data])], ignore_index=True)
         df.to_csv(ORGANIZATIONS_FILE, index=False)
 
         # For the return object
-        data['id'] = new_id
-        data['password'] = hashed_password
-        return data
+        result = data.copy()
+        result['id'] = new_id
+        if 'password' in result:
+            del result['password']  # Don't return the password
+        return result
     except Exception as e:
         print(f"Error creating organization: {e}")
         return {}
 
 
-# === Login Verification ===
 def verify_user(email: str, password: str) -> Optional[Dict[str, Any]]:
+    """Verify user credentials for login."""
     user = get_user_by_email(email)
     if not user:
         print(f"No user found with email: {email}")
         return None
 
-    # The password in user should already be decoded
+    # Get the stored hashed password
     stored_hash = user.get('password')
     if not stored_hash:
         print("No password hash found for user")
@@ -206,46 +225,19 @@ def verify_user(email: str, password: str) -> Optional[Dict[str, Any]]:
         print(f"Password verification error: {e}")
         return None
 
+    # Password verified successfully
     return user
 
 
-# === Test Function ===
-def test_password_system():
-    """Test function to verify the password system is working correctly"""
-    test_email = "test@example.com"
-    test_password = "SecurePassword123!"
-
-    print("\n=== Testing Password System ===")
-
-    # Create a test user
-    print("Creating test user...")
-    test_user = create_volunteer({
-        'email': test_email,
-        'name': 'Test User',
-        'password': test_password,
-        'user_type': 'volunteer'
-    })
-    print(f"User created with ID: {test_user.get('id')}")
-
-    # Try to verify the user
-    print("\nVerifying with correct password...")
-    user = verify_user(test_email, test_password)
-    print(f"Verification successful: {user is not None}")
-
-    # Check with wrong password
-    print("\nVerifying with incorrect password...")
-    user = verify_user(test_email, "WrongPassword")
-    print(f"Verification successful (should be False): {user is not None}")
-
-    print("=== Password System Test Complete ===\n")
-
-
-# === Opportunities ===
+# === Opportunity Operations ===
 def get_all_opportunities() -> List[Dict[str, Any]]:
+    """Get all available opportunities."""
     try:
         df = pd.read_csv(OPPORTUNITIES_FILE)
-        opportunities = []
+        if df.empty:
+            return []
 
+        opportunities = []
         for _, row in df.iterrows():
             opp = row.to_dict()
             opp['skills_required'] = deserialize_list(opp.get('skills_required', '[]'))
@@ -259,19 +251,166 @@ def get_all_opportunities() -> List[Dict[str, Any]]:
         return []
 
 
-def get_organization_by_id(org_id: int) -> Optional[Dict[str, Any]]:
+def get_opportunity_by_id(opportunity_id: int) -> Optional[Dict[str, Any]]:
+    """Get an opportunity by ID."""
     try:
-        df = pd.read_csv(ORGANIZATIONS_FILE)
-        match = df[df['id'] == org_id]
+        df = pd.read_csv(OPPORTUNITIES_FILE)
+        match = df[df['id'] == opportunity_id]
         if not match.empty:
-            user = match.iloc[0].to_dict()
-            # Decode the password hash if needed
-            if 'password' in user:
-                user['password'] = decode_password(user.get('password'))
-            return user
+            opp = match.iloc[0].to_dict()
+            opp['skills_required'] = deserialize_list(opp.get('skills_required', '[]'))
+            opp['interests'] = deserialize_list(opp.get('interests', '[]'))
+            opp['time_requirements'] = deserialize_dict(opp.get('time_requirements', '{}'))
+            return opp
     except Exception as e:
-        print(f"Error getting organization by ID: {e}")
+        print(f"Error getting opportunity by ID: {e}")
+
     return None
 
-# Run the test if needed
-# test_password_system()
+
+def create_opportunity(data: Dict[str, Any]) -> Dict[str, Any]:
+    """Create a new opportunity."""
+    try:
+        df = pd.read_csv(OPPORTUNITIES_FILE)
+        new_id = int(df['id'].max()) + 1 if not df.empty else 1
+
+        # Create a copy for storage
+        storage_data = data.copy()
+        storage_data['id'] = new_id
+
+        # Serialize complex data
+        storage_data['skills_required'] = serialize_list(data.get('skills_required', []))
+        storage_data['interests'] = serialize_list(data.get('interests', []))
+        storage_data['time_requirements'] = serialize_dict(data.get('time_requirements', {}))
+
+        # Add to dataframe and save
+        df = pd.concat([df, pd.DataFrame([storage_data])], ignore_index=True)
+        df.to_csv(OPPORTUNITIES_FILE, index=False)
+
+        # For the return object
+        result = data.copy()
+        result['id'] = new_id
+        return result
+    except Exception as e:
+        print(f"Error creating opportunity: {e}")
+        return {}
+
+
+def get_organization_by_id(org_id: int) -> Optional[Dict[str, Any]]:
+    """Get an organization by ID."""
+    return get_user_by_id(org_id, "organization")
+
+
+# === Match Operations ===
+def create_match(volunteer_id: int, opportunity_id: int, match_score: float) -> Dict[str, Any]:
+    """Create a new match between volunteer and opportunity."""
+    try:
+        df = pd.read_csv(MATCHES_FILE)
+        new_id = int(df['id'].max()) + 1 if not df.empty else 1
+
+        match_data = {
+            'id': new_id,
+            'volunteer_id': volunteer_id,
+            'opportunity_id': opportunity_id,
+            'match_score': match_score,
+            'status': 'pending',
+            'volunteer_feedback': serialize_dict({}),
+            'organization_feedback': serialize_dict({}),
+            'created_at': pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'updated_at': pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')
+        }
+
+        # Add to dataframe and save
+        df = pd.concat([df, pd.DataFrame([match_data])], ignore_index=True)
+        df.to_csv(MATCHES_FILE, index=False)
+
+        return match_data
+    except Exception as e:
+        print(f"Error creating match: {e}")
+        return {}
+
+
+def get_volunteer_matches(volunteer_id: int) -> List[Dict[str, Any]]:
+    """Get all matches for a specific volunteer."""
+    try:
+        matches_df = pd.read_csv(MATCHES_FILE)
+        vol_matches = matches_df[matches_df['volunteer_id'] == volunteer_id]
+
+        if vol_matches.empty:
+            return []
+
+        result = []
+        for _, match in vol_matches.iterrows():
+            match_dict = match.to_dict()
+
+            # Get opportunity details
+            opportunity = get_opportunity_by_id(match_dict['opportunity_id'])
+            if opportunity:
+                # Get organization details
+                organization = get_organization_by_id(opportunity['organization_id'])
+                org_name = organization['name'] if organization else "Unknown Organization"
+
+                # Create rich match object
+                match_obj = {
+                    'id': match_dict['id'],
+                    'status': match_dict['status'],
+                    'match_score': match_dict['match_score'],
+                    'created_at': match_dict['created_at'],
+                    'opportunity': {
+                        'id': opportunity['id'],
+                        'title': opportunity['title'],
+                        'description': opportunity['description'],
+                        'organization_id': opportunity['organization_id'],
+                        'organization_name': org_name,
+                        'location': opportunity['location'],
+                        'date': opportunity['date'],
+                        'duration': opportunity['duration']
+                    },
+                    'volunteer_feedback': deserialize_dict(match_dict['volunteer_feedback']),
+                    'organization_feedback': deserialize_dict(match_dict['organization_feedback'])
+                }
+                result.append(match_obj)
+
+        return result
+    except Exception as e:
+        print(f"Error getting volunteer matches: {e}")
+        return []
+
+
+def update_match_status(match_id: int, status: str) -> bool:
+    """Update the status of a match."""
+    try:
+        df = pd.read_csv(MATCHES_FILE)
+        match_idx = df[df['id'] == match_id].index
+
+        if match_idx.empty:
+            return False
+
+        df.loc[match_idx, 'status'] = status
+        df.loc[match_idx, 'updated_at'] = pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')
+        df.to_csv(MATCHES_FILE, index=False)
+
+        return True
+    except Exception as e:
+        print(f"Error updating match status: {e}")
+        return False
+
+
+def add_match_feedback(match_id: int, feedback: Dict[str, Any], feedback_type: str) -> bool:
+    """Add feedback to a match from either volunteer or organization."""
+    try:
+        df = pd.read_csv(MATCHES_FILE)
+        match_idx = df[df['id'] == match_id].index
+
+        if match_idx.empty:
+            return False
+
+        feedback_column = 'volunteer_feedback' if feedback_type == 'volunteer' else 'organization_feedback'
+        df.loc[match_idx, feedback_column] = serialize_dict(feedback)
+        df.loc[match_idx, 'updated_at'] = pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')
+        df.to_csv(MATCHES_FILE, index=False)
+
+        return True
+    except Exception as e:
+        print(f"Error adding match feedback: {e}")
+        return False

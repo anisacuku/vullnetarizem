@@ -1,14 +1,3 @@
 id,email,name,password,user_type,skills,interests,availability
-1,anisacuku07@gmail.com,Anisa Çuku,$2b$12$jxm5IYI68tA9AHmnOh/IU.RMkTp2Z8QY860gS780HBP3OoTMxxHXa,volunteer,[],[],{}
-2,askrapalliu19@gmail.com,a,$2b$12$HMkSWatYguE7biOxeUqVGOv4G4Qvr4Msj3MuDjKI3vCHrctriMpMu,volunteer,[],[],{}
-3,acuku@epka.al,Andi,$2b$12$qjHxvW91h79Ou12bMraDtuQk1cepJBkW8lss9sEw3rquegU40z9F6,volunteer,[],[],{}
-4,andi@epoka.edu.al,Andi Cuku,$2b$12$CyWwEAVF1Iz1NZVh/.Zgh.r7D0hLN6yVv7AtwcdwHXq8q00u4crXi,volunteer,[],[],{}
-5,as@gmail.com,as,$2b$12$yao.m2fNcKTCEg603pCCAuyBHduauniOAiXKyeRmVqv5yCAvIdpdC,volunteer,[],[],{}
-6,a1s@gmail.com,as,$2b$12$kRZYPhZfSoNS6v2Las32vOrynaylqH.xo4I8wztIMJWSYLNqQbLJ.,volunteer,[],[],{}
-7,a11s@gmail.com,as,$2b$12$Mbgb/pSQ5J7Mzla0iUQfDew3SpDVP6lqLskBtWEwZgs2IJ3vfoHfq,volunteer,[],[],{}
-8,a11s1@gmail.com,as,$2b$12$u2jJVKWbNylblOrtJWnzMeUQz5Uta5fGU1HfnMtwWgOW3wt5tbtYS,volunteer,[],[],{}
-9,a111s1@gmail.com,as,$2b$12$KNK5oG/AbPx7MdGtugB0gO2yyqt8nSD.GG9604k/wreINgoRbl7o6,volunteer,[],[],{}
-10,new1@user.com,New User,$2b$12$vmzBWuv.MZn0b2Mkd9HhlOTFX48OOxOJByHe6B8A7lStezt.fx2XC,volunteer,[],[],{}
-11,new@user.com,New User,$2b$12$kSsnzl4cyvhi.YmzteSFPezdjbtUwz8jyvu0tdj0hgYikiC8ZFAeS,volunteer,[],[],{}
-12,new12@user.com,New User,$2b$12$n2XYaaqPfMotNcuvWDuIceQhubgm2/IIYgqke68Nn/tNpNZ2QHG7S,volunteer,[],[],{}
-13,new123@user.com,New User,JDJiJDEyJG5Mby9ZbXRvbjg2Y2hFcjFCWWVDQ3VMLktXb00vNVRhWnJ5WjhXMlJnODU3UkJad1o5SWEy,volunteer,[],[],{}
+1,acuku@epoka.al,Andi,$2b$12$FXyihRndKYZvtMNWyGAwTeGF9LmFNK4VmIoHaeVYA/RWkcLv5wjzi,volunteer,[],[],{}
+2,anisacuku07@gmail.com,Anisa Çuku,$2b$12$AQMa5C2RkowIfh37QTsR1eeJVvyp.hc5eEQEmvNldGFGQBGozPfnC,volunteer,[],[],{}
