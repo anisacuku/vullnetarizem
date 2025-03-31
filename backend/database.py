@@ -92,7 +92,7 @@ def decode_password(encoded_hash):
 def get_user_by_email(email: str) -> Optional[Dict[str, Any]]:
     try:
         df = pd.read_csv(VOLUNTEERS_FILE, dtype={'password': str, 'email': str})
-        match = df[df['email'] == email]
+        match = df[df['email'] == email] 
         if not match.empty:
             user = match.iloc[0].to_dict()
             # Decode the password hash
