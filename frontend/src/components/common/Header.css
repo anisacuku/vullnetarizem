@@ -18,6 +18,17 @@
   padding: 8px 12px;
   display: flex;
   align-items: center;
+  transition: background-color 0.2s ease;
+  border-radius: 4px;
+}
+
+.nav-dropdown-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.dropdown-arrow {
+  margin-left: 6px;
+  font-size: 12px;
 }
 
 .nav-dropdown-content {
@@ -26,12 +37,13 @@
   right: 0;
   min-width: 200px;
   background-color: white;
-  border-radius: 10px;
+  border-radius: 8px;
   box-shadow: 0 8px 16px rgba(0,0,0,0.15);
   display: flex;
   flex-direction: column;
-  padding: 10px 0;
+  padding: 8px 0;
   z-index: 1000;
+  margin-top: 5px;
 }
 
 .nav-dropdown-content a,
@@ -40,13 +52,14 @@
   align-items: center;
   gap: 10px;
   padding: 10px 20px;
-  color: #0d1b2a;
+  color: #333;
   text-decoration: none;
   font-weight: 500;
   background: none;
   border: none;
   text-align: left;
   width: 100%;
+  transition: background-color 0.2s ease;
 }
 
 .nav-dropdown-content a:hover,
@@ -56,4 +69,38 @@
 
 .nav-dropdown-content .logout {
   color: #d62828;
+}
+
+/* Add a small triangle indicator at the top of the dropdown */
+.nav-dropdown-content::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  right: 20px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid white;
+}
+/* Add this to your Header.css file */
+
+.dropdown-link-button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  color: #333;
+  text-decoration: none;
+  font-weight: 500;
+  background: none;
+  border: none;
+  text-align: left;
+  width: 100%;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.dropdown-link-button:hover {
+  background-color: #f5f5f5;
 }

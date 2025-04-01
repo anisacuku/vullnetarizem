@@ -1,25 +1,145 @@
-import React from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { AuthContext } from '../context/AuthContext';
 import ScrollFadeIn from '../components/common/ScrollFadeIn';
+import ProfileSetupForm from '../components/profile/ProfileSetupForm';
 import '../App.css';
 
 function HomePage() {
+  const { user, isAuthenticated } = useContext(AuthContext);
+  const [hasCompletedProfile, setHasCompletedProfile] = useState(true);
+
+  // Extract username from email (before the @ symbol)
+  const username = user?.email ? user.email.split('@')[0] : '';
+
+  // Check if user has completed profile
+  useEffect(() => {
+    if (isAuthenticated) {
+      // In a real app, you would check if the user has completed their profile
+      // For now, we'll simulate this with localStorage
+      const profileCompleted = localStorage.getItem(`profile_completed_${user.email}`);
+      setHasCompletedProfile(profileCompleted === 'true');
+    }
+  }, [isAuthenticated, user]);
+
+  const handleProfileComplete = () => {
+    // Mark profile as completed
+    localStorage.setItem(`profile_completed_${user.email}`, 'true');
+    setHasCompletedProfile(true);
+  };
+
+  // Render different content for logged-in vs. non-logged-in users
+  if (isAuthenticated) {
+    return (
+      <motion.div
+        className="home-page full-width"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+      >
+        {/* Personalized greeting for logged-in users */}
+        <section className="welcome-banner full-width">
+          <div className="welcome-container">
+            <motion.h1
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.6 }}
+            >
+              Mirësevini, {username}!
+            </motion.h1>
+            <motion.p
+              initial={{ y: -10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.8 }}
+            >
+              {hasCompletedProfile
+                ? 'Faleminderit që jeni pjesë e platformës sonë të vullnetarizmit.'
+                : 'Ju lutemi plotësoni profilin tuaj për të filluar.'}
+            </motion.p>
+          </div>
+        </section>
+
+        {/* First-time profile setup form */}
+        {!hasCompletedProfile ? (
+          <section className="profile-setup-section">
+            <div className="profile-setup-container">
+              <h2>Plotësoni Profilin Tuaj</h2>
+              <ProfileSetupForm onComplete={handleProfileComplete} userEmail={user.email} />
+            </div>
+          </section>
+        ) : (
+          // Content for users who have already completed their profile
+          <>
+            {/* Recommended opportunities section */}
+            <section className="recommendations-section full-width">
+              <div className="recommendations-container">
+                <h2>Mundësi të Rekomanduara për Ju</h2>
+                <div className="opportunities-grid">
+                  {/* Example opportunities - in a real app, these would be personalized */}
+                  <div className="opportunity-card">
+                    <h3>Pastrim i Parkut</h3>
+                    <p>Ndihmoni në pastrimin e parqeve lokale.</p>
+                    <Link to="/opportunities/1" className="button secondary">Shiko Detajet</Link>
+                  </div>
+                  <div className="opportunity-card">
+                    <h3>Mentor për Fëmijë</h3>
+                    <p>Ndihmoni fëmijët me detyrat e shtëpisë.</p>
+                    <Link to="/opportunities/2" className="button secondary">Shiko Detajet</Link>
+                  </div>
+                  <div className="opportunity-card">
+                    <h3>Ndihmë për të Moshuarit</h3>
+                    <p>Ofroni shoqëri dhe ndihmë për të moshuarit.</p>
+                    <Link to="/opportunities/3" className="button secondary">Shiko Detajet</Link>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Recent activities section */}
+            <section className="activities-section full-width">
+              <div className="activities-container">
+                <h2>Aktivitetet e Fundit</h2>
+                <div className="activities-list">
+                  <div className="activity-item">
+                    <div className="activity-icon">📝</div>
+                    <div className="activity-info">
+                      <h3>Profili përditësuar</h3>
+                      <p>Ju keni përditësuar profilin tuaj para 2 ditësh</p>
+                    </div>
+                  </div>
+                  <div className="activity-item">
+                    <div className="activity-icon">🔍</div>
+                    <div className="activity-info">
+                      <h3>Kërkime të reja</h3>
+                      <p>Ju keni kërkuar për mundësi në fushën e mjedisit</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </>
+        )}
+      </motion.div>
+    );
+  }
+
+  // Default homepage for non-logged-in users
   return (
     <motion.div
-      className="home-page"
+      className="home-page full-width"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
     >
-      {/* Seksioni Hero */}
+      {/* Hero Section */}
       <motion.section
-        className="hero-section"
+        className="hero-section full-width"
         initial={{ y: -40, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 1 }}
       >
-        <div className="hero-content floating">
+        <div className="hero-content">
           <h1>Sistemi Inteligjent i Vullnetarizmit</h1>
           <p>Gjej mundësinë perfekte të vullnetarizmit që përputhet me aftësitë dhe interesat e tua</p>
           <div className="cta-buttons">
@@ -31,7 +151,7 @@ function HomePage() {
 
       {/* Si Funksionon */}
       <ScrollFadeIn>
-        <section className="how-it-works">
+        <section className="how-it-works full-width">
           <h2>Si Funksionon?</h2>
           <div className="steps-container">
             {["Krijo Profilin", "Merr Përputhje", "Fillo Vullnetarizmin"].map((title, idx) => (
@@ -53,7 +173,7 @@ function HomePage() {
 
       {/* Veçoritë */}
       <ScrollFadeIn>
-        <section className="features-section">
+        <section className="features-section full-width">
           <h2>Veçoritë Kryesore</h2>
           <div className="features-grid">
             {[

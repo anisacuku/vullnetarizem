@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import { AuthProvider } from './context/AuthContext';
 import Header from './components/common/Header';
 import Footer from './components/common/Footer';
+import ScrollToTopButton from './components/common/ScrollToTop';
 
 import HomePage from './pages/HomePage';
 import AboutPage from './pages/AboutPage';
@@ -18,71 +19,72 @@ import VolunteerProfilePage from './pages/VolunteerProfilePage';
 import OrganizationProfilePage from './pages/OrganizationProfilePage';
 
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import './App.css';
+import './components/common/Header.css';
 
 function AppRoutes() {
   const location = useLocation();
   const hideHeaderFooterOn = ['/login', '/register'];
-  const isDashboard = location.pathname.startsWith('/dashboard');
   const shouldHideHeaderFooter = hideHeaderFooterOn.includes(location.pathname);
 
   return (
-    <>
+    <div className="app full-width">
       {/* HEADER */}
-      {!shouldHideHeaderFooter && !isDashboard && <Header />}
-      {isDashboard && (
-        <header style={{ backgroundColor: '#0d1b2a', color: 'white', padding: '1rem' }}>
-          <h2 style={{ margin: 0 }}>Mirësevjen në Panelin tënd!</h2>
-        </header>
-      )}
+      {!shouldHideHeaderFooter && <Header />}
 
-      {/* ROUTES */}
-      <Routes>
-        {/* Public routes */}
-        <Route path="/" element={<HomePage />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/opportunities" element={<OpportunityListPage />} />
-        <Route path="/opportunities/:id" element={<OpportunityDetailPage />} />
+      {/* MAIN CONTENT */}
+      <main className="main-content full-width">
+        <Routes>
+          {/* Public routes */}
+          <Route path="/" element={<HomePage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/opportunities" element={<OpportunityListPage />} />
+          <Route path="/opportunities/:id" element={<OpportunityDetailPage />} />
 
-        {/* Protected routes */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <DashboardPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/matches"
-          element={
-            <ProtectedRoute>
-              <MatchesPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/profile/volunteer"
-          element={
-            <ProtectedRoute>
-              <VolunteerProfilePage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/profile/organization"
-          element={
-            <ProtectedRoute>
-              <OrganizationProfilePage />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
+          {/* Protected routes */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/matches"
+            element={
+              <ProtectedRoute>
+                <MatchesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile/volunteer"
+            element={
+              <ProtectedRoute>
+                <VolunteerProfilePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile/organization"
+            element={
+              <ProtectedRoute>
+                <OrganizationProfilePage />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </main>
 
       {/* FOOTER */}
-      {!shouldHideHeaderFooter && !isDashboard && <Footer />}
-    </>
+      {!shouldHideHeaderFooter && <Footer />}
+
+      {/* SCROLL TO TOP BUTTON */}
+      <ScrollToTopButton />
+    </div>
   );
 }
 

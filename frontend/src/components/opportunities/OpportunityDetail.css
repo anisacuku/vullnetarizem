@@ -11,7 +11,20 @@
 .opportunity-detail h2 {
   font-size: 2rem;
   color: #0a2a43;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
+}
+
+.organization {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  color: #666;
+  font-size: 1rem;
+}
+
+.organization-icon {
+  color: #083081;
 }
 
 .description {
@@ -46,6 +59,59 @@
 
 .icon {
   margin-right: 8px;
+  color: #083081;
+}
+
+.skills-interests {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+  margin-bottom: 30px;
+}
+
+.required-skills h3,
+.opportunity-interests h3 {
+  font-size: 1.2rem;
+  color: #0a2a43;
+  margin-bottom: 15px;
+}
+
+.skills-list,
+.interests-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.skill-tag,
+.interest-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+}
+
+.skill-tag {
+  background-color: #e0f7fa;
+  color: #00838f;
+}
+
+.interest-tag {
+  background-color: #f9e4e8;
+  color: #c2185b;
+}
+
+.skill-icon,
+.interest-icon {
+  font-size: 0.8rem;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 15px;
+  margin-top: 30px;
 }
 
 .apply-button {
@@ -58,11 +124,56 @@
   font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.2s ease;
+  flex: 1;
+  max-width: 200px;
 }
 
-.apply-button:hover {
+.apply-button:hover:not(:disabled) {
   background-color: #0c3c66;
   transform: scale(1.05);
+}
+
+.apply-button.already-applied {
+  background-color: #4caf50;
+  cursor: default;
+}
+
+.apply-button:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.back-button {
+  background-color: #f5f5f5;
+  color: #333;
+  padding: 12px 28px;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.back-button:hover {
+  background-color: #e0e0e0;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 50px;
+}
+
+.error-message,
+.not-found {
+  text-align: center;
+  padding: 30px;
+  background-color: #fff3f4;
+  border-radius: 10px;
+  color: #d32f2f;
+  margin: 40px auto;
+  max-width: 600px;
 }
 
 @keyframes fadeIn {
@@ -74,5 +185,20 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .skills-interests {
+    grid-template-columns: 1fr;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+
+  .apply-button {
+    max-width: 100%;
   }
 }
