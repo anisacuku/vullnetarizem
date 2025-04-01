@@ -104,7 +104,6 @@ function HomePage() {
                 <p>Profili juaj u kompletua me sukses! Ja ku janë disa mundësi të rekomanduara për ju.</p>
               </motion.div>
             )}
-
             <section className="welcome-banner full-width">
               <div className="welcome-container" style={{ maxWidth: '700px', margin: '0 auto', textAlign: 'center', padding: '0 20px' }}>
                 <motion.h1
