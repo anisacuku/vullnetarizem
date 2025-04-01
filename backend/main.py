@@ -9,7 +9,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 # Import your routers
-from backend.routers import auth, volunteers, organizations, opportunities, matches
+from routers import auth, volunteers, organizations, opportunities, matches
 
 # === FastAPI App ===
 app = FastAPI(

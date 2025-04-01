@@ -1,14 +1,14 @@
 from fastapi import APIRouter, HTTPException, Depends, status
 from typing import List, Dict, Any
 
-from backend.models import OpportunityCreate, Opportunity, OpportunityOut
-from backend.database import (
+from models import OpportunityCreate, Opportunity, OpportunityOut
+from database import (
     get_all_opportunities,
     get_opportunity_by_id,
     create_opportunity,
     get_organization_by_id
 )
-from backend.routers.auth import get_current_user
+from routers.auth import get_current_user
 
 router = APIRouter()
 

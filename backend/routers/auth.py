@@ -5,8 +5,8 @@ from typing import Optional, Dict, Any
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
-from backend.models import UserCreate, Token, TokenData
-from backend.database import get_user_by_email, create_user
+from models import UserCreate, Token, TokenData
+from database import get_user_by_email, create_user
 
 router = APIRouter()
 

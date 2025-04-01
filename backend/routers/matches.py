@@ -2,8 +2,8 @@ from fastapi import APIRouter, HTTPException, Depends, status
 from typing import List, Dict, Any
 from pydantic import BaseModel
 
-from backend.services.auth import get_current_user
-from backend.database import (
+from services.auth import get_current_user
+from database import (
     get_all_opportunities,
     get_volunteer_matches,
     create_match,
@@ -11,7 +11,7 @@ from backend.database import (
     add_match_feedback,
     get_opportunity_by_id
 )
-from backend.ml.matching_algorithm import match_volunteer_with_opportunities
+from ml.matching_algorithm import match_volunteer_with_opportunities
 
 router = APIRouter()
 
