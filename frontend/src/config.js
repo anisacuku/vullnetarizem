@@ -1,4 +1,4 @@
 // config.js
-const API_BASE_URL = "http://localhost:8000/api";
+const API_BASE_URL = "https://vullnetarizem-1.onrender.com";
 
 export default API_BASE_URL;
