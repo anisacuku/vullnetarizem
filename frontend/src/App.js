@@ -22,12 +22,20 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 function AppRoutes() {
   const location = useLocation();
   const hideHeaderFooterOn = ['/login', '/register'];
-  const shouldHide = hideHeaderFooterOn.includes(location.pathname);
+  const isDashboard = location.pathname.startsWith('/dashboard');
+  const shouldHideHeaderFooter = hideHeaderFooterOn.includes(location.pathname);
 
   return (
     <>
-      {!shouldHide && <Header />}
+      {/* HEADER */}
+      {!shouldHideHeaderFooter && !isDashboard && <Header />}
+      {isDashboard && (
+        <header style={{ backgroundColor: '#0d1b2a', color: 'white', padding: '1rem' }}>
+          <h2 style={{ margin: 0 }}>Mirësevjen në Panelin tënd!</h2>
+        </header>
+      )}
 
+      {/* ROUTES */}
       <Routes>
         {/* Public routes */}
         <Route path="/" element={<HomePage />} />
@@ -72,7 +80,8 @@ function AppRoutes() {
         />
       </Routes>
 
-      {!shouldHide && <Footer />}
+      {/* FOOTER */}
+      {!shouldHideHeaderFooter && !isDashboard && <Footer />}
     </>
   );
 }

@@ -1,50 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import OpportunityCard from '../components/opportunities/OpportunityCard';
+import React, { useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
 
-function OpportunityListPage() {
-  const [opportunities, setOpportunities] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      setOpportunities([
-        {
-          id: 1,
-          title: 'Community Clean-up',
-          description: 'Help clean up local parks and streets',
-          organization: 'Green Albania'
-        },
-        {
-          id: 2,
-          title: 'Teaching Assistant',
-          description: 'Help children with homework after school',
-          organization: 'Education for All'
-        }
-      ]);
-      setLoading(false);
-    }, 1000);
-  }, []);
-
-  if (loading) {
-    return <div className="loading">Loading opportunities...</div>;
-  }
+function DashboardPage() {
+  const { user } = useContext(AuthContext);
 
   return (
-    <div className="opportunities-page">
-      <div className="container">
-        <h2>Volunteer Opportunities</h2>
-        <div className="opportunities-list">
-          {opportunities.map(opportunity => (
-            <OpportunityCard
-              key={opportunity.id}
-              opportunity={opportunity}
-            />
-          ))}
-        </div>
-      </div>
+    <div style={{ padding: '2rem' }}>
+      <h1 style={{ fontSize: '2rem' }}>
+        👋 Mirësevjen, {user?.email?.split('@')[0] || 'Vullnetar'}!
+      </h1>
+      <p>Kjo është faqja juaj e personalizuar e Dashboard-it.</p>
     </div>
   );
 }
 
-export default OpportunityListPage;
+export default DashboardPage;

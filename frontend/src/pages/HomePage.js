@@ -67,11 +67,11 @@ function HomePage() {
               },
               {
                 title: "Ndjekja e Ndikimit",
-                desc: "Monitoro ndikimin që po bën në komunitetin tënd me mjetet tona të raportimit."
+                desc: "Monitoro ndikimin që po bën në komunitetin tënd me mjetet tona të raportimit"
               },
               {
                 title: "Ndërtimi i Komunitetit",
-                desc: "Lidhu me vullnetarë dhe organizata të tjera që po ndryshojnë Shqipërinë."
+                desc: "Lidhu me vullnetarë dhe organizata të tjera që po ndryshojnë Shqipërinë"
               },
             ].map((feature, idx) => (
               <ScrollFadeIn delay={idx * 0.2} key={idx}>

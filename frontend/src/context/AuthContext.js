@@ -1,92 +1,130 @@
-import React, { createContext, useEffect, useState, useContext } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import axios from 'axios';
 import API_BASE_URL from '../config';
 
-export const AuthContext = createContext();
+// Create context
+export const AuthContext = createContext(null);
 
+// Context provider component
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Check for existing auth on initial load
   useEffect(() => {
-    try {
-      const storedUser = localStorage.getItem('user');
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
+    const checkExistingAuth = async () => {
+      try {
+        const storedUser = localStorage.getItem('user');
+
+        if (storedUser) {
+          const userData = JSON.parse(storedUser);
+
+          // Optional: Validate token with the backend
+          // This helps ensure the token hasn't expired or been invalidated
+          try {
+            await axios.get(`${API_BASE_URL}/auth/me`, {
+              headers: {
+                Authorization: `Bearer ${userData.token}`
+              }
+            });
+            setUser(userData);
+          } catch (error) {
+            console.error("Token validation failed:", error);
+            localStorage.removeItem('user');
+          }
+        }
+      } catch (error) {
+        console.error("Error restoring auth state:", error);
+        localStorage.removeItem('user');
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Error restoring user from localStorage:", error);
-      localStorage.removeItem('user'); // Clear potentially corrupted data
-    } finally {
-      setLoading(false);
-    }
+    };
+
+    checkExistingAuth();
   }, []);
 
-  const login = async ({ email, password }) => {
+  // Login function
+  const login = async (credentials) => {
     try {
-      const formData = new URLSearchParams();
-      formData.append("username", email);
-      formData.append("password", password);
+      let userData;
 
-      const response = await fetch(`${API_BASE_URL}/auth/token`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: formData
-      });
+      // If credentials already contains token and user data, just use that
+      if (credentials.token) {
+        userData = credentials;
+      } else {
+        // Otherwise make an API call to get a token
+        const formData = new URLSearchParams();
+        formData.append("username", credentials.email);
+        formData.append("password", credentials.password);
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        const errorMessage = errorData.detail || `Error ${response.status}: ${response.statusText}`;
-        throw new Error(errorMessage);
-      }
+        const response = await axios.post(`${API_BASE_URL}/auth/token`, formData, {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        });
 
-      const data = await response.json();
+        if (!response.data || !response.data.access_token) {
+          throw new Error('Invalid response from server');
+        }
 
-      if (!data || !data.access_token) {
-        throw new Error('Invalid response: No access token received');
-      }
+        const token = response.data.access_token;
 
-      const token = data.access_token;
-
-      // Safely decode the token
-      let decoded;
-      try {
+        // Decode token
         const base64Url = token.split('.')[1];
         const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        decoded = JSON.parse(atob(base64));
-      } catch (tokenError) {
-        console.error("Token decode error:", tokenError);
-        throw new Error('Invalid token format');
+        const decoded = JSON.parse(atob(base64));
+
+        userData = {
+          email: decoded.sub,
+          user_type: decoded.user_type,
+          token
+        };
       }
 
-      const userData = {
-        email: decoded.sub,
-        user_type: decoded.user_type,
-        token,
-      };
-
+      // Update state and localStorage
+      console.log("Login successful:", userData);
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
 
-      return userData; // Return user data for component usage
+      return userData;
     } catch (error) {
       console.error("Login failed:", error);
-      throw error; // Re-throw to allow components to handle errors
+      throw error;
     }
   };
 
+  // Logout function
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
   };
 
+  // Context value
+  const value = {
+    user,
+    login,
+    logout,
+    loading,
+    isAuthenticated: !!user
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
 };
 
 // Custom hook for using auth context
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+
+  return context;
+};
+
+export default AuthContext;
