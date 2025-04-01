@@ -27,6 +27,78 @@
   width: 100%;
 }
 
+/* Progress Bar */
+.form-progress-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 0 1rem;
+}
+
+.progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.step-number {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #666;
+  transition: all 0.3s ease;
+}
+
+.progress-step.active .step-number {
+  background-color: #083081;
+  color: white;
+}
+
+.step-label {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.progress-step.active .step-label {
+  color: #083081;
+  font-weight: 600;
+}
+
+.progress-line {
+  flex: 1;
+  height: 2px;
+  background-color: #e0e0e0;
+  margin: 0 0.5rem;
+  position: relative;
+  top: -18px;
+}
+
+/* Form Steps */
+.form-step-container {
+  margin-bottom: 2rem;
+}
+
+.step-title {
+  color: #083081;
+  margin-bottom: 1rem;
+  font-size: 1.4rem;
+}
+
+.step-description {
+  color: #666;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+}
+
 .form-row {
   display: flex;
   gap: 1.5rem;
@@ -123,245 +195,70 @@
   font-weight: normal;
 }
 
-.form-actions {
-  display: flex;
-  justify-content: center;
-  margin-top: 2rem;
-}
-
-.submit-button {
-  background-color: #083081;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 0.75rem 2rem;
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
-}
-
-.submit-button:hover {
-  background-color: #0a47a9;
-  transform: translateY(-2px);
-}
-
-.submit-button:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
-  transform: none;
-}
-
-/* Welcome Banner Styles */
-.welcome-banner {
-  background-color: #083081;
-  color: white;
-  padding: 3rem 2rem;
-  text-align: center;
-  margin-bottom: 2rem;
-}
-
-.welcome-container {
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.welcome-banner h1 {
-  font-size: 2.5rem;
+/* Availability Section */
+.availability-section {
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  padding: 1rem;
   margin-bottom: 1rem;
 }
 
-.welcome-banner p {
-  font-size: 1.2rem;
-  opacity: 0.9;
+.availability-section h4 {
+  margin-top: 0;
+  margin-bottom: 0.8rem;
+  color: #444;
+  font-size: 1rem;
 }
 
-/* Dashboard-like sections for logged-in users */
-.recommendations-section,
-.activities-section {
-  padding: 2rem;
-  margin-bottom: 2rem;
-}
-
-.recommendations-container,
-.activities-container {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.recommendations-section h2,
-.activities-section h2 {
-  color: #083081;
-  margin-bottom: 1.5rem;
-  font-size: 1.8rem;
-  text-align: center;
-}
-
-.opportunities-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
-}
-
-.activities-list {
+.availability-options {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  max-width: 800px;
-  margin: 0 auto;
+  gap: 0.5rem;
 }
 
-.activity-item {
-  display: flex;
-  gap: 1rem;
-  background-color: white;
-  padding: 1.2rem;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.activity-icon {
-  font-size: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 50px;
-  height: 50px;
-  background-color: #e6eeff;
-  border-radius: 50%;
-}
-
-.activity-info h3 {
-  margin: 0 0 0.5rem;
-  color: #083081;
-  font-size: 1.1rem;
-}
-
-.activity-info p {
-  margin: 0;
-  color: #666;
-}
-/* Add these styles to your App.css */
-
-/* Edit Profile Button */
-.edit-profile-button {
-  background-color: #083081;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 0.6rem 1.2rem;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
-  margin-left: auto;
-}
-
-.edit-profile-button:hover {
-  background-color: #0a47a9;
-  transform: translateY(-2px);
-}
-
-.edit-profile-button svg {
-  font-size: 1.1rem;
-}
-
-/* Profile Edit Container */
-.profile-edit-container {
-  width: 100%;
-  background-color: white;
-  border-radius: 15px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
-  margin-bottom: 2rem;
-}
-
-.profile-edit-container h2 {
-  text-align: center;
-  color: #083081;
-  margin-bottom: 1.5rem;
-  font-size: 1.8rem;
-}
-
-/* Profile Form */
-.cancel-button {
-  background-color: #e0e0e0;
-  color: #333;
-  border: none;
-  border-radius: 8px;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: background-color 0.3s;
-}
-
-.cancel-button:hover {
-  background-color: #d0d0d0;
-}
-
-.cancel-button:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
-}
-
+/* Form Actions */
 .form-actions {
   display: flex;
   justify-content: space-between;
   margin-top: 2rem;
 }
 
+.back-button,
+.next-button,
 .submit-button {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.success-message {
-  background-color: #d4edda;
-  color: #155724;
-  padding: 12px 16px;
+  padding: 0.75rem 1.5rem;
   border-radius: 8px;
-  margin-bottom: 1.5rem;
-  font-weight: 500;
-  text-align: center;
-  animation: fadeIn 0.4s;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.back-button {
+  background-color: #e0e0e0;
+  color: #333;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .welcome-section {
-    flex-direction: column;
-    text-align: center;
-  }
+.back-button:hover {
+  background-color: #d0d0d0;
+}
 
-  .edit-profile-button {
-    margin: 1rem auto 0;
-  }
+.next-button,
+.submit-button {
+  background-color: #083081;
+  color: white;
+}
 
-  .form-actions {
-    flex-direction: column;
-    gap: 1rem;
-  }
+.next-button:hover,
+.submit-button:hover {
+  background-color: #0a47a9;
+  transform: translateY(-2px);
+}
 
-  .cancel-button, .submit-button {
-    width: 100%;
-    justify-content: center;
-  }
+.back-button:disabled,
+.next-button:disabled,
+.submit-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  transform: none;
 }

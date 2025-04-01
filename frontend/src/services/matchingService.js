@@ -229,6 +229,14 @@ const volunteerOpportunities = [
   }
 ];
 
+// Object with weights for each matching category
+const matchWeights = {
+  skills: 0.40,
+  interests: 0.30,
+  availability: 0.15,
+  location: 0.15
+};
+
 /**
  * Get all available opportunities
  * @returns {Promise<Array>} All volunteer opportunities
@@ -260,251 +268,644 @@ export const getOpportunityById = async (id) => {
 };
 
 /**
- * Calculate match score between a user profile and an opportunity
+ * Calculate match score between a user profile and an opportunity with enhanced algorithm
  *
  * @param {Object} userProfile - The user's profile with skills, interests, etc.
  * @param {Object} opportunity - The volunteer opportunity
- * @returns {number} - Match score percentage (0-100)
+ * @returns {Object} - Match data including score and detailed breakdown
  */
-const calculateMatchScore = (userProfile, opportunity) => {
-  if (!userProfile || !opportunity) return 0;
+const calculateEnhancedMatch = (userProfile, opportunity) => {
+  if (!userProfile || !opportunity) return { score: 0, details: {} };
 
-  // Initialize scores
-  let totalScore = 0;
-  let maxPossibleScore = 100;
+  // Calculate individual category scores
+  const skillsData = calculateEnhancedSkillsScore(
+    userProfile.skills || [],
+    opportunity.requiredSkills || opportunity.skills_required?.split(', ') || [],
+    opportunity.recommendedSkills || []
+  );
 
-  // Skills match (40% weight)
-  const skillsScore = calculateSkillsScore(userProfile.skills, opportunity.requiredSkills, opportunity.recommendedSkills);
+  const interestsData = calculateEnhancedInterestsScore(
+    userProfile.interests || [],
+    opportunity.interests || []
+  );
 
-  // Interests match (30% weight)
-  const interestsScore = calculateInterestsScore(userProfile.interests, opportunity.interests);
+  const availabilityScore = calculateEnhancedAvailabilityScore(
+    userProfile.availability || {},
+    opportunity.time_requirements || ""
+  );
 
-  // Location preference match (15% weight)
-  const locationScore = calculateLocationScore(userProfile, opportunity);
+  const locationScore = calculateEnhancedLocationScore(
+    userProfile.city || userProfile.location || "",
+    opportunity.location || ""
+  );
 
-  // Availability match (15% weight)
-  const availabilityScore = calculateAvailabilityScore(userProfile.availability, opportunity.time_requirements);
+  // Calculate personality score if available
+  const personalityScore = calculatePersonalityMatch(
+    userProfile.personality || {},
+    opportunity.personality_traits || {}
+  );
 
-  // Calculate weighted total
-  totalScore = (skillsScore * 0.4) + (interestsScore * 0.3) + (locationScore * 0.15) + (availabilityScore * 0.15);
+  // Calculate weighted total score
+  const weightedScore =
+    (skillsData.score * matchWeights.skills) +
+    (interestsData.score * matchWeights.interests) +
+    (availabilityScore * matchWeights.availability) +
+    (locationScore * matchWeights.location);
 
-  // Round to nearest integer and ensure within 0-100 range
-  return Math.min(100, Math.max(0, Math.round(totalScore)));
+  // Apply personality boost if available
+  const finalScore = personalityScore > 0
+    ? weightedScore * (1.0 + (personalityScore * 0.05))
+    : weightedScore;
+
+  // Create detailed match breakdown
+  return {
+    score: Math.round(finalScore),
+    details: {
+      skillScore: Math.round(skillsData.score),
+      matchedSkills: skillsData.matchedSkills,
+      missingSkills: skillsData.missingSkills,
+      interestScore: Math.round(interestsData.score),
+      matchingInterests: interestsData.matchingInterests,
+      availabilityScore: Math.round(availabilityScore),
+      locationScore: Math.round(locationScore),
+      personalityScore: personalityScore > 0 ? Math.round(personalityScore) : 0
+    }
+  };
 };
 
 /**
- * Calculate how well user's skills match opportunity requirements
+ * Calculate enhanced skills score with consideration for required and recommended skills
  *
  * @param {Array} userSkills - User's skills
  * @param {Array} requiredSkills - Skills required for the opportunity
  * @param {Array} recommendedSkills - Skills recommended but not required
- * @returns {number} - Score from 0-100
+ * @returns {Object} - Score object with score, matched skills, and missing skills
  */
-const calculateSkillsScore = (userSkills, requiredSkills, recommendedSkills) => {
-  if (!userSkills || !userSkills.length) return 0;
+const calculateEnhancedSkillsScore = (userSkills, requiredSkills, recommendedSkills) => {
+  if (!userSkills || !userSkills.length) return { score: 0, matchedSkills: [], missingSkills: requiredSkills };
   if (!requiredSkills) requiredSkills = [];
   if (!recommendedSkills) recommendedSkills = [];
 
-  let score = 0;
-  const maxScore = 100;
+  // Normalize all skills to lowercase for better matching
+  const normalizedUserSkills = userSkills.map(skill => skill.toLowerCase());
+  const normalizedRequiredSkills = requiredSkills.map(skill => skill.toLowerCase());
+  const normalizedRecommendedSkills = recommendedSkills.map(skill => skill.toLowerCase());
 
-  // Required skills have higher weight
-  if (requiredSkills.length > 0) {
-    const requiredMatches = requiredSkills.filter(skill =>
-      userSkills.some(userSkill =>
-        userSkill.toLowerCase().includes(skill.toLowerCase()) ||
-        skill.toLowerCase().includes(userSkill.toLowerCase())
-      )
-    ).length;
+  // Find matching required skills
+  const matchedRequiredSkills = normalizedRequiredSkills.filter(skill =>
+    normalizedUserSkills.some(userSkill =>
+      userSkill.includes(skill) || skill.includes(userSkill)
+    )
+  );
 
-    const requiredPercentage = requiredMatches / requiredSkills.length;
-    score += requiredPercentage * 70; // 70% weight for required skills
+  // Find partial matches
+  const partialMatches = normalizedRequiredSkills.filter(skill =>
+    !matchedRequiredSkills.includes(skill) &&
+    normalizedUserSkills.some(userSkill =>
+      isPartialMatch(userSkill, skill)
+    )
+  );
+
+  // Find matching recommended skills
+  const matchedRecommendedSkills = normalizedRecommendedSkills.filter(skill =>
+    normalizedUserSkills.some(userSkill =>
+      userSkill.includes(skill) || skill.includes(userSkill)
+    )
+  );
+
+  // Calculate required score (80% of total)
+  let requiredScore = 0;
+  if (normalizedRequiredSkills.length > 0) {
+    const requiredMatch = (matchedRequiredSkills.length + (partialMatches.length * 0.5)) / normalizedRequiredSkills.length;
+    requiredScore = requiredMatch * 80;
   } else {
-    score += 70; // Full points if no required skills
+    requiredScore = 80; // Full points if no required skills
   }
 
-  // Recommended skills have lower weight
-  if (recommendedSkills.length > 0) {
-    const recommendedMatches = recommendedSkills.filter(skill =>
-      userSkills.some(userSkill =>
-        userSkill.toLowerCase().includes(skill.toLowerCase()) ||
-        skill.toLowerCase().includes(userSkill.toLowerCase())
-      )
-    ).length;
-
-    const recommendedPercentage = recommendedMatches / recommendedSkills.length;
-    score += recommendedPercentage * 30; // 30% weight for recommended skills
+  // Calculate recommended score (20% of total)
+  let recommendedScore = 0;
+  if (normalizedRecommendedSkills.length > 0) {
+    const recommendedMatch = matchedRecommendedSkills.length / normalizedRecommendedSkills.length;
+    recommendedScore = recommendedMatch * 20;
   } else {
-    score += 30; // Full points if no recommended skills
+    recommendedScore = 20; // Full points if no recommended skills
   }
 
-  return score;
+  // Calculate missing skills
+  const missingSkills = normalizedRequiredSkills.filter(skill =>
+    !matchedRequiredSkills.includes(skill) && !partialMatches.includes(skill)
+  );
+
+  // Get original case for skills to display to user
+  const displayMatchedSkills = [
+    ...requiredSkills.filter((_, index) => matchedRequiredSkills.includes(normalizedRequiredSkills[index])),
+    ...recommendedSkills.filter((_, index) => matchedRecommendedSkills.includes(normalizedRecommendedSkills[index])),
+    ...requiredSkills.filter((_, index) => partialMatches.includes(normalizedRequiredSkills[index]))
+  ];
+
+  const displayMissingSkills = requiredSkills.filter((_, index) =>
+    missingSkills.includes(normalizedRequiredSkills[index])
+  );
+
+  return {
+    score: requiredScore + recommendedScore,
+    matchedSkills: [...new Set(displayMatchedSkills)], // Remove duplicates
+    missingSkills: displayMissingSkills
+  };
 };
 
 /**
- * Calculate how well user's interests match opportunity interests
+ * Check if two skill terms have a partial match
+ *
+ * @param {string} skill1 - First skill
+ * @param {string} skill2 - Second skill
+ * @returns {boolean} - True if there's a meaningful partial match
+ */
+const isPartialMatch = (skill1, skill2) => {
+  // Minimum length of common substring to consider a partial match
+  const MIN_COMMON_LENGTH = 5;
+
+  // Check for common words
+  const words1 = skill1.split(' ');
+  const words2 = skill2.split(' ');
+
+  for (const word1 of words1) {
+    if (word1.length < 4) continue; // Skip short words
+
+    if (words2.some(word2 => word2.length >= 4 && (word1.includes(word2) || word2.includes(word1)))) {
+      return true;
+    }
+  }
+
+  // Find the longest common substring
+  for (let i = 0; i < skill1.length; i++) {
+    for (let j = 0; j < skill2.length; j++) {
+      let k = 0;
+      while (i + k < skill1.length && j + k < skill2.length &&
+             skill1[i + k] === skill2[j + k]) {
+        k++;
+      }
+      if (k >= MIN_COMMON_LENGTH) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+};
+
+/**
+ * Calculate enhanced interests score with semantic similarity
  *
  * @param {Array} userInterests - User's interests
  * @param {Array} opportunityInterests - Interests relevant to the opportunity
- * @returns {number} - Score from 0-100
+ * @returns {Object} - Object with score and matching interests
  */
-const calculateInterestsScore = (userInterests, opportunityInterests) => {
-  if (!userInterests || !userInterests.length) return 0;
-  if (!opportunityInterests || !opportunityInterests.length) return 50; // Neutral score if no interests specified
+const calculateEnhancedInterestsScore = (userInterests, opportunityInterests) => {
+  if (!userInterests || !userInterests.length) return { score: 30, matchingInterests: [] };
+  if (!opportunityInterests || !opportunityInterests.length) return { score: 50, matchingInterests: [] };
 
-  // Count how many interests match
-  const matches = opportunityInterests.filter(interest =>
-    userInterests.some(userInterest =>
-      userInterest.toLowerCase().includes(interest.toLowerCase()) ||
-      interest.toLowerCase().includes(userInterest.toLowerCase())
-    )
-  ).length;
+  // Normalize interest strings to lowercase for better matching
+  const normalizedUserInterests = userInterests.map(interest => interest.toLowerCase());
+  const normalizedOppInterests = opportunityInterests.map(interest => interest.toLowerCase());
 
-  // Calculate percentage match and scale to 0-100
-  return (matches / opportunityInterests.length) * 100;
+  // Find exact matching interests
+  const exactMatches = normalizedUserInterests.filter(interest =>
+    normalizedOppInterests.includes(interest)
+  );
+
+  // Find semantic matches (related interests that aren't exact matches)
+  const semanticMatches = [];
+  for (const userInterest of normalizedUserInterests) {
+    if (exactMatches.includes(userInterest)) continue; // Skip exact matches
+
+    for (const oppInterest of normalizedOppInterests) {
+      if (areInterestsRelated(userInterest, oppInterest)) {
+        semanticMatches.push(oppInterest);
+        break; // Only count one semantic match per user interest
+      }
+    }
+  }
+
+  // Get original case for interests to display to user
+  const displayMatches = [
+    ...opportunityInterests.filter((_, index) => exactMatches.includes(normalizedOppInterests[index])),
+    ...opportunityInterests.filter((_, index) => semanticMatches.includes(normalizedOppInterests[index]))
+  ];
+
+  // Calculate Jaccard similarity with semantic boost
+  const unionSize = new Set([...normalizedUserInterests, ...normalizedOppInterests]).size;
+
+  // Count exact matches fully and semantic matches at 0.75 weight
+  const weightedMatchCount = exactMatches.length + (semanticMatches.length * 0.75);
+
+  // Calculate similarity and convert to percentage
+  const similarity = unionSize > 0 ? (weightedMatchCount / unionSize) * 100 : 50;
+
+  return {
+    score: similarity,
+    matchingInterests: [...new Set(displayMatches)] // Remove duplicates
+  };
 };
 
 /**
- * Calculate location match score
+ * Check if two interest terms are semantically related
  *
- * @param {Object} userProfile - User profile with location preferences
- * @param {Object} opportunity - Opportunity with location
- * @returns {number} - Score from 0-100
+ * @param {string} interest1 - First interest
+ * @param {string} interest2 - Second interest
+ * @returns {boolean} - True if the interests are related
  */
-const calculateLocationScore = (userProfile, opportunity) => {
-  if (!userProfile || !opportunity || !opportunity.location) return 50; // Neutral score
-
-  // If user has preferred cities and opportunity location matches
-  if (userProfile.city && opportunity.location.includes(userProfile.city)) {
-    return 100;
+const areInterestsRelated = (interest1, interest2) => {
+  // Check for substring matches
+  if (interest1.includes(interest2) || interest2.includes(interest1)) {
+    return true;
   }
 
-  // If user has not specified a city
-  if (!userProfile.city) {
-    return 60; // Slightly positive default
+  // Simple synonym dictionary for Albanian
+  const interestSynonyms = {
+    'mjedis': ['ekologji', 'natyrë', 'ambient', 'gjelbër'],
+    'edukim': ['arsim', 'mësim', 'shkollë', 'dije'],
+    'fëmijë': ['të rinj', 'të vegjël', 'adoleshentë', 'rini'],
+    'kafshë': ['fauna', 'qenie', 'kafshët'],
+    'teknologji': ['tech', 'it', 'digjital', 'kompjuter'],
+    'art': ['artet', 'krijimtari', 'kreativitet'],
+    'komunitet': ['shoqëri', 'qytet', 'lagje', 'grup'],
+    'sport': ['aktivitet fizik', 'stërvitje', 'trajnim'],
+    'shëndetësi': ['mjekësi', 'shëndet', 'mirëqenie'],
+    'të moshuarit': ['pleqtë', 'të moshuar', 'pensionistë']
+  };
+
+  // Check if the interests belong to the same category
+  for (const [key, synonyms] of Object.entries(interestSynonyms)) {
+    const category1 = interest1 === key || synonyms.some(syn => interest1.includes(syn));
+    const category2 = interest2 === key || synonyms.some(syn => interest2.includes(syn));
+
+    if (category1 && category2) {
+      return true;
+    }
   }
 
-  // For opportunities that list multiple cities or regions
-  if (opportunity.location.includes("Në të gjithë Shqipërinë")) {
-    return 80; // High score for nationwide opportunities
-  }
-
-  // If multiple cities are listed and user's city isn't among them
-  if (opportunity.location.includes(",")) {
-    return 40; // Lower score but not the lowest
-  }
-
-  // No match at all
-  return 20;
+  return false;
 };
 
 /**
- * Calculate availability match score
+ * Calculate enhanced availability match from string description
  *
  * @param {Object} userAvailability - User's availability preferences
- * @param {string} opportunityTimeRequirements - Opportunity time requirements
- * @returns {number} - Score from 0-100
+ * @param {string} opportunityTimeReq - String description of time requirements
+ * @returns {number} - Match score between 0-100
  */
-const calculateAvailabilityScore = (userAvailability, opportunityTimeRequirements) => {
-  if (!userAvailability || !opportunityTimeRequirements) return 50; // Neutral score
-
-  let score = 50; // Start with neutral score
-
-  // Parse opportunity time requirements
-  const timeReq = opportunityTimeRequirements.toLowerCase();
-
-  // Check weekday/weekend match
-  if (userAvailability.weekdays && timeReq.includes("ditët e punës")) {
-    score += 25;
+const calculateEnhancedAvailabilityScore = (userAvailability, opportunityTimeReq) => {
+  if (!userAvailability || Object.keys(userAvailability).length === 0) {
+    return 50; // Neutral score if no availability provided
   }
 
-  if (userAvailability.weekends && (timeReq.includes("fundjavë") || timeReq.includes("vikend"))) {
-    score += 25;
+  if (!opportunityTimeReq) {
+    return 100; // Full score if no time requirements
   }
 
-  // Check time of day match
-  if (userAvailability.mornings && (timeReq.includes("mëngjes") || timeReq.includes("9:00"))) {
-    score += 10;
+  // Convert to lowercase for consistent matching
+  const timeReq = opportunityTimeReq.toLowerCase();
+
+  // Start with a base score
+  let score = 50;
+
+  // Check for weekday/weekend matches
+  if (timeReq.includes('ditët e punës') || timeReq.includes('weekday')) {
+    if (userAvailability.weekdays) {
+      score += 20;
+    } else {
+      score -= 10;
+    }
   }
 
-  if (userAvailability.afternoons && timeReq.includes("pasdite")) {
-    score += 10;
+  if (timeReq.includes('fundjavë') || timeReq.includes('weekend')) {
+    if (userAvailability.weekends) {
+      score += 20;
+    } else {
+      score -= 10;
+    }
   }
 
-  if (userAvailability.evenings && timeReq.includes("mbrëmje")) {
-    score += 10;
+  // Check time of day matches
+  if (timeReq.includes('mëngjes') || timeReq.includes('morning') ||
+      timeReq.includes('9:00') || timeReq.includes('8:00')) {
+    if (userAvailability.mornings) {
+      score += 10;
+    } else {
+      score -= 5;
+    }
   }
 
-  // Flexible schedule is always a plus
-  if (timeReq.includes("fleksibël")) {
+  if (timeReq.includes('pasdite') || timeReq.includes('afternoon')) {
+    if (userAvailability.afternoons) {
+      score += 10;
+    } else {
+      score -= 5;
+    }
+  }
+
+  if (timeReq.includes('mbrëmje') || timeReq.includes('evening')) {
+    if (userAvailability.evenings) {
+      score += 10;
+    } else {
+      score -= 5;
+    }
+  }
+
+  // Flexible schedules favor the match
+  if (timeReq.includes('fleksibël') || timeReq.includes('flexible')) {
     score += 15;
   }
 
-  return Math.min(100, score); // Cap at 100
+  // Limit score to 0-100 range
+  return Math.max(0, Math.min(100, score));
 };
 
 /**
- * Get top matches for a user profile
+ * Calculate enhanced location match score
  *
- * @param {Object} userProfile - User's profile
- * @param {number} limit - Number of matches to return (default: 5)
- * @returns {Array} - Array of matches with scores
+ * @param {string} userLocation - User's location
+ * @param {string} opportunityLocation - Opportunity's location
+ * @returns {number} - Match score between 0-100
  */
-export const getMatchesForUser = (userProfile, limit = 5) => {
-  if (!userProfile) return [];
+const calculateEnhancedLocationScore = (userLocation, opportunityLocation) => {
+  if (!userLocation || !opportunityLocation) {
+    return 50; // Neutral score if either location is missing
+  }
 
-  const matches = volunteerOpportunities.map(opportunity => {
-    const score = calculateMatchScore(userProfile, opportunity);
+  // Convert to lowercase for consistent matching
+  userLocation = userLocation.toLowerCase();
+  opportunityLocation = opportunityLocation.toLowerCase();
+
+  // Perfect match
+  if (userLocation === opportunityLocation) {
+    return 100;
+  }
+
+  // Check for partial matches
+  if (userLocation.includes(opportunityLocation) || opportunityLocation.includes(userLocation)) {
+    return 85;
+  }
+
+  // Check for nationwide opportunities
+  if (opportunityLocation.includes('shqipëri') ||
+      opportunityLocation.includes('nationwide') ||
+      opportunityLocation.includes('në të gjithë')) {
+    return 75;
+  }
+
+  // City proximity matching - a simplified approach
+  const nearbyLocations = {
+    'tiranë': ['durrës', 'vorë', 'kamëz'],
+    'durrës': ['tiranë', 'shijak'],
+    'vlorë': ['fier', 'orikum'],
+    'shkodër': ['lezhë', 'koplik'],
+    'elbasan': ['librazhd', 'peqin'],
+    // Add more as needed
+  };
+
+  // Extract city name from location (simplified - assumes first word is city)
+  const userCity = userLocation.split(' ')[0];
+  const oppCity = opportunityLocation.split(' ')[0];
+
+  // Check if cities are nearby
+  if (nearbyLocations[userCity]?.includes(oppCity) ||
+      nearbyLocations[oppCity]?.includes(userCity)) {
+    return 70;
+  }
+
+  // Default score for different locations
+  return 30;
+};
+
+/**
+ * Calculate personality match score if data is available
+ *
+ * @param {Object} userPersonality - User's personality traits
+ * @param {Object} opportunityPersonality - Desired personality traits
+ * @returns {number} - Match score between 0-100, or 0 if data not available
+ */
+const calculatePersonalityMatch = (userPersonality, opportunityPersonality) => {
+  // Skip if either is missing or empty
+  if (!userPersonality || !opportunityPersonality ||
+      Object.keys(userPersonality).length === 0 ||
+      Object.keys(opportunityPersonality).length === 0) {
+    return 0;
+  }
+
+  // Find common traits
+  const commonTraits = Object.keys(userPersonality).filter(
+    trait => trait in opportunityPersonality
+  );
+
+  if (commonTraits.length === 0) {
+    return 0;
+  }
+
+  // Calculate similarity (cosine similarity)
+  let dotProduct = 0;
+  for (const trait of commonTraits) {
+    dotProduct += userPersonality[trait] * opportunityPersonality[trait];
+  }
+
+  // Calculate magnitudes
+  const userMagnitude = Math.sqrt(
+    Object.values(userPersonality).reduce((sum, val) => sum + val * val, 0)
+  );
+
+  const oppMagnitude = Math.sqrt(
+    Object.values(opportunityPersonality).reduce((sum, val) => sum + val * val, 0)
+  );
+
+  // Avoid division by zero
+  if (userMagnitude === 0 || oppMagnitude === 0) {
+    return 0;
+  }
+
+  // Calculate similarity and convert to percentage
+  return (dotProduct / (userMagnitude * oppMagnitude)) * 100;
+};
+
+/**
+ * Get matches for the current user using the enhanced algorithm
+ *
+ * @param {Object} userProfile - User profile data (or null to use mock data)
+ * @returns {Promise<Array>} Array of matching opportunities with scores
+ */
+export const getMatches = async (userProfile = null) => {
+  // In a real implementation, this would pull the user profile from an API or context
+  // For now, we'll simulate a user profile if none is provided
+  const profile = userProfile || {
+    name: "Anisa",
+    surname: "Cuku",
+    email: "anisacuku07@gmail.com",
+    phoneNumber: "355123456789",
+    profession: "Student",
+    skills: ["Komunikim", "Mësimdhënie", "Organizim", "Programim", "Punë në ekip"],
+    interests: ["Edukim", "Mjedis", "Fëmijë", "Teknologji", "Arte"],
+    city: "Tiranë",
+    availability: {
+      weekdays: true,
+      weekends: true,
+      mornings: false,
+      afternoons: true,
+      evenings: true
+    }
+  };
+
+  // Get all opportunities
+  const opportunities = await getAllOpportunities();
+
+  // Calculate match scores for each opportunity
+  const matches = opportunities.map(opportunity => {
+    const matchData = calculateEnhancedMatch(profile, opportunity);
+
     return {
       opportunity,
-      score
+      score: matchData.score,
+      matched_skills: matchData.details.matchedSkills,
+      matching_interests: matchData.details.matchingInterests,
+      match_details: matchData.details
     };
   });
 
-  // Sort by score (highest first) and limit results
-  return matches
+  // Sort by score and limit to top matches
+  const topMatches = matches
     .sort((a, b) => b.score - a.score)
-    .slice(0, limit);
+    .slice(0, 8);
+
+  // Simulate API delay
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve(topMatches);
+    }, 500);
+  });
 };
 
 /**
- * Get personalized recommendations (different from top matches)
+ * Get recommended opportunities for the current user
+ * Different from top matches - focuses on diversity and exploration
  *
- * @param {Object} userProfile - User's profile
+ * @param {Object} userProfile - User profile data (or null to use mock data)
  * @param {Array} excludedIds - IDs of opportunities to exclude (e.g., already matched)
- * @param {number} limit - Number of recommendations to return
- * @returns {Array} - Array of recommended opportunities
+ * @returns {Promise<Array>} Array of recommended opportunities
  */
-export const getRecommendationsForUser = (userProfile, excludedIds = [], limit = 3) => {
-  if (!userProfile) return [];
+export const getRecommendedOpportunities = async (userProfile = null, excludedIds = []) => {
+  // Use provided profile or mock data
+  const profile = userProfile || {
+    name: "Anisa",
+    surname: "Cuku",
+    email: "anisacuku07@gmail.com",
+    phoneNumber: "355123456789",
+    profession: "Student",
+    skills: ["Komunikim", "Mësimdhënie", "Organizim", "Programim", "Punë në ekip"],
+    interests: ["Edukim", "Mjedis", "Fëmijë", "Teknologji", "Arte"],
+    city: "Tiranë",
+    availability: {
+      weekdays: true,
+      weekends: true,
+      mornings: false,
+      afternoons: true,
+      evenings: true
+    }
+  };
 
-  // First, get all matches
-  const allMatches = volunteerOpportunities
-    .filter(opportunity => !excludedIds.includes(opportunity.id))
+  // Get all opportunities
+  const opportunities = await getAllOpportunities();
+
+  // If no excluded IDs provided, first get top matches to exclude them
+  let idsToExclude = excludedIds;
+  if (idsToExclude.length === 0) {
+    const topMatches = await getMatches(profile);
+    idsToExclude = topMatches.slice(0, 3).map(match => match.opportunity.id);
+  }
+
+  // Calculate matches for remaining opportunities
+  const allMatches = opportunities
+    .filter(opp => !idsToExclude.includes(opp.id))
     .map(opportunity => {
-      const score = calculateMatchScore(userProfile, opportunity);
+      const matchData = calculateEnhancedMatch(profile, opportunity);
       return {
         opportunity,
-        score
+        score: matchData.score
       };
     });
 
-  // Sort by score (highest first)
+  // Sort by score
   const sortedMatches = allMatches.sort((a, b) => b.score - a.score);
 
-  // For recommendations, we want a mix of high scores and diversity
-  // Select opportunities with good but not perfect matches to encourage exploration
-  const goodMatches = sortedMatches.filter(match => match.score >= 50 && match.score < 85);
+  // For recommendations, we want a mix of good matches and diversity
+  // Get some good-but-not-perfect matches to encourage exploration
+  const goodMatches = sortedMatches.filter(match => match.score >= 50 && match.score < 80);
 
-  // If we don't have enough good matches, supplement with top matches
-  let recommendations = goodMatches.length >= limit ?
-    goodMatches.slice(0, limit) :
-    [...goodMatches, ...sortedMatches.filter(match => match.score >= 85)];
+  // Mix in some opportunities that match different interests than top matches
+  const diverseInterestMatches = findOpportunitiesWithDiverseInterests(sortedMatches, profile.interests);
 
-  // Limit results and ensure we're not recommending super low-quality matches
-  return recommendations
-    .filter(match => match.score >= 40)
-    .slice(0, limit);
+  // Create the final recommendations list
+  let recommendations = [
+    ...goodMatches.slice(0, 2),
+    ...diverseInterestMatches.slice(0, 2)
+  ];
+
+  // If we don't have enough recommendations, add more from top matches
+  if (recommendations.length < 3) {
+    const remainingNeeded = 3 - recommendations.length;
+    const otherTopMatches = sortedMatches
+      .filter(match => !recommendations.includes(match))
+      .slice(0, remainingNeeded);
+
+    recommendations = [...recommendations, ...otherTopMatches];
+  }
+
+  // Extract just the opportunity objects for simpler usage
+  const recommendedOpportunities = recommendations
+    .filter(rec => rec.score >= 40) // Ensure minimum quality
+    .map(rec => rec.opportunity);
+
+  // Simulate API delay
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve(recommendedOpportunities.slice(0, 4));
+    }, 500);
+  });
+};
+
+/**
+ * Find opportunities that match different interests than the user's primary interests
+ * This helps with recommendation diversity
+ *
+ * @param {Array} opportunities - Opportunity matches with scores
+ * @param {Array} userInterests - User's stated interests
+ * @returns {Array} - Opportunities that match diverse interests
+ */
+const findOpportunitiesWithDiverseInterests = (opportunities, userInterests) => {
+  if (!userInterests || userInterests.length === 0) {
+    return opportunities.slice(0, 3);
+  }
+
+  // Normalize user interests to lowercase
+  const normalizedUserInterests = userInterests.map(i => i.toLowerCase());
+
+  // Primary interests are the first 2 (most important to user)
+  const primaryInterests = normalizedUserInterests.slice(0, 2);
+
+  // Find opportunities that don't focus on primary interests
+  return opportunities.filter(match => {
+    const oppInterests = match.opportunity.interests || [];
+    const normalizedOppInterests = oppInterests.map(i => i.toLowerCase());
+
+    // Count matches with primary interests
+    const primaryMatches = primaryInterests.filter(interest =>
+      normalizedOppInterests.some(oppInterest =>
+        areInterestsRelated(interest, oppInterest)
+      )
+    ).length;
+
+    // Keep opportunities with 0 or 1 primary interest matches
+    // This ensures some interest alignment but different focus
+    return primaryMatches <= 1;
+  });
 };
 
 /**
@@ -512,10 +913,13 @@ export const getRecommendationsForUser = (userProfile, excludedIds = [], limit =
  *
  * @param {Object} searchCriteria - Search parameters (location, interests, etc.)
  * @param {number} limit - Maximum number of results to return
- * @returns {Array} - Matching opportunities
+ * @returns {Promise<Array>} - Matching opportunities
  */
-export const searchOpportunities = (searchCriteria, limit = 10) => {
-  let filteredOpportunities = [...volunteerOpportunities];
+export const searchOpportunities = async (searchCriteria, limit = 10) => {
+  // Get all opportunities
+  const opportunities = await getAllOpportunities();
+
+  let filteredOpportunities = [...opportunities];
 
   // Filter by location if provided
   if (searchCriteria.location) {
@@ -528,7 +932,8 @@ export const searchOpportunities = (searchCriteria, limit = 10) => {
   if (searchCriteria.interest) {
     filteredOpportunities = filteredOpportunities.filter(opportunity =>
       opportunity.interests.some(interest =>
-        interest.toLowerCase().includes(searchCriteria.interest.toLowerCase())
+        interest.toLowerCase().includes(searchCriteria.interest.toLowerCase()) ||
+        areInterestsRelated(interest.toLowerCase(), searchCriteria.interest.toLowerCase())
       )
     );
   }
@@ -538,10 +943,12 @@ export const searchOpportunities = (searchCriteria, limit = 10) => {
     filteredOpportunities = filteredOpportunities.filter(opportunity =>
       opportunity.skills_required.toLowerCase().includes(searchCriteria.skill.toLowerCase()) ||
       (opportunity.requiredSkills && opportunity.requiredSkills.some(skill =>
-        skill.toLowerCase().includes(searchCriteria.skill.toLowerCase())
+        skill.toLowerCase().includes(searchCriteria.skill.toLowerCase()) ||
+        isPartialMatch(skill.toLowerCase(), searchCriteria.skill.toLowerCase())
       )) ||
       (opportunity.recommendedSkills && opportunity.recommendedSkills.some(skill =>
-        skill.toLowerCase().includes(searchCriteria.skill.toLowerCase())
+        skill.toLowerCase().includes(searchCriteria.skill.toLowerCase()) ||
+        isPartialMatch(skill.toLowerCase(), searchCriteria.skill.toLowerCase())
       ))
     );
   }
@@ -554,90 +961,20 @@ export const searchOpportunities = (searchCriteria, limit = 10) => {
     );
   }
 
+  // Filter by minimum spots if provided
+  if (searchCriteria.minSpots && !isNaN(searchCriteria.minSpots)) {
+    filteredOpportunities = filteredOpportunities.filter(opportunity =>
+      opportunity.spotsLeft >= parseInt(searchCriteria.minSpots, 10)
+    );
+  }
+
   // Limit results
-  return filteredOpportunities.slice(0, limit);
-};
-
-/**
- * Get matches for the current user
- * This is a mock implementation for demonstration purposes
- * In a real app, this would fetch user profile from context or API
- *
- * @returns {Promise<Array>} Array of matching opportunities with scores
- */
-export const getMatches = async () => {
-  // In a real implementation, this would pull the user profile from an API or context
-  // For now, we'll simulate a user profile
-  const mockUserProfile = {
-    name: "Anisa",
-    surname: "Cuku",
-    email: "anisacuku07@gmail.com",
-    phoneNumber: "355123456789",
-    profession: "Student",
-    skills: ["Komunikim", "Mësimdhënie", "Organizim", "Programim", "Punë në ekip"],
-    interests: ["Edukim", "Mjedis", "Fëmijë", "Teknologji", "Arte"],
-    city: "Tiranë",
-    availability: {
-      weekdays: true,
-      weekends: true,
-      mornings: false,
-      afternoons: true,
-      evenings: true
-    }
-  };
-
-  // Get top matches
-  const matches = getMatchesForUser(mockUserProfile, 5);
+  const results = filteredOpportunities.slice(0, limit);
 
   // Simulate API delay
   return new Promise(resolve => {
     setTimeout(() => {
-      resolve(matches);
-    }, 500);
+      resolve(results);
+    }, 400);
   });
 };
-
-/**
- * Get recommended opportunities for the current user
- * This is a mock implementation for demonstration purposes
- *
- * @returns {Promise<Array>} Array of recommended opportunities
- */
-export const getRecommendedOpportunities = async () => {
-  // Similar mock user profile
-  const mockUserProfile = {
-    name: "Anisa",
-    surname: "Cuku",
-    email: "anisacuku07@gmail.com",
-    phoneNumber: "355123456789",
-    profession: "Student",
-    skills: ["Komunikim", "Mësimdhënie", "Organizim", "Programim", "Punë në ekip"],
-    interests: ["Edukim", "Mjedis", "Fëmijë", "Teknologji", "Arte"],
-    city: "Tiranë",
-    availability: {
-      weekdays: true,
-      weekends: true,
-      mornings: false,
-      afternoons: true,
-      evenings: true
-    }
-  };
-
-  // First get top matches to exclude them from recommendations
-  const topMatches = getMatchesForUser(mockUserProfile, 5);
-  const topMatchIds = topMatches.map(match => match.opportunity.id);
-
-  // Get recommendations excluding top matches
-  const recommendations = getRecommendationsForUser(mockUserProfile, topMatchIds, 3);
-
-  // Extract just the opportunity objects for simpler usage
-  const recommendedOpportunities = recommendations.map(rec => rec.opportunity);
-
-  // Simulate API delay
-  return new Promise(resolve => {
-    setTimeout(() => {
-      resolve(recommendedOpportunities);
-    }, 500);
-  });
-};
-

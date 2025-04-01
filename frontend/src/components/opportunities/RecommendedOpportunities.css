@@ -1,0 +1,188 @@
+/* Recommended Opportunities Grid */
+.recommendations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+  padding-top: 1rem;
+}
+
+/* Card Container */
+.recommendation-card {
+  background-color: #ffffff;
+  border-radius: 18px;
+  padding: 1.8rem;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.recommendation-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+}
+
+/* Match Score Badge */
+.recommendation-badge {
+  display: inline-flex;
+  align-items: center;
+  background-color: #e7f6ec;
+  color: #1b8f41;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.8rem;
+}
+
+.star-icon {
+  color: #fbbf24;
+  margin-right: 6px;
+}
+
+/* Title and Organization */
+.recommendation-title {
+  color: #083081;
+  margin: 0 0 0.3rem;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.recommendation-organization {
+  color: #6b7280;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+}
+
+/* Description */
+.recommendation-description {
+  color: #4b5563;
+  font-size: 0.95rem;
+  margin-bottom: 1.2rem;
+  line-height: 1.5;
+  flex-grow: 1;
+}
+
+/* Details (Location & Date) */
+.recommendation-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 1rem;
+}
+
+.recommendation-detail {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #f9fafb;
+  color: #374151;
+  font-size: 0.85rem;
+  padding: 6px 12px;
+  border-radius: 8px;
+}
+
+.detail-icon {
+  color: #2563eb;
+}
+
+/* Match Sections */
+.match-highlights {
+  margin-bottom: 1rem;
+}
+
+.matches-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: #374151;
+  font-weight: 600;
+}
+
+.check-icon {
+  color: #10b981;
+}
+
+.match-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.match-tag {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* Tag Colors */
+.skill-match {
+  background-color: #e0f2fe;
+  color: #0284c7;
+}
+
+.interest-match {
+  background-color: #fce7f3;
+  color: #db2777;
+}
+
+.more-tag {
+  background-color: #f3f4f6;
+  color: #6b7280;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+}
+
+/* Action Button */
+.recommendation-actions {
+  margin-top: auto;
+}
+
+.view-opportunity-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  background-color: #083081;
+  color: white;
+  padding: 12px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: background-color 0.2s ease;
+}
+
+.view-opportunity-button:hover {
+  background-color: #0b4bbf;
+}
+
+.button-icon {
+  font-size: 0.8rem;
+}
+
+/* No Match Fallback */
+.no-recommendations {
+  background-color: #f9fafb;
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 1rem;
+  max-width: 600px;
+  margin: 2rem auto;
+}
+
+/* Responsive Grid */
+@media (max-width: 768px) {
+  .recommendations-grid {
+    grid-template-columns: 1fr;
+  }
+}

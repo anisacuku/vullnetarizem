@@ -3,3 +3,5 @@ id,email,name,password,user_type,skills,interests,availability
 2,anisacuku07@gmail.com,Anisa Çuku,$2b$12$o.oQYsWYeaQA9jSG2/a05Og.5ZQF7KOo1iPP2PnIQ9TP5dXqJbA0K,volunteer,[],[],{}
 3,newuser@gmail.com,New USer,$2b$12$lVpAIRlAJJ3MSQVnKFM7c.7d2UeJMsYqBtEe8Dx7sLlnmwxZIUCEm,volunteer,[],[],{}
 4,test@hs.com,test9,$2b$12$efmhbPLsSnituo2NBf0Pfes3ELAvwJ2ubeA.rKZkR4aogVk59Q.Ta,volunteer,[],[],{}
+5,test11@example.com,tests,$2b$12$7jk3sBBEOjkEOrhGyJ.5ge1aWfiJyonB2A.tnqjpH1nvAhyxv3Blu,volunteer,[],[],{}
+6,eraera0310@gmail.com, n ,$2b$12$8.nWGsAVlYtvn0B2kHnd1.20XGLz.PjxYuYttnrNGVIH6L6//Ebm.,volunteer,[],[],{}
