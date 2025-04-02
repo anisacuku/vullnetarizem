@@ -132,7 +132,6 @@ function DashboardPage() {
                 <div className="card-content">
                   <h3>Aktivitetet e Ardhshme</h3>
                   <p>Ju keni {stats.upcomingActivities.length} aktivitete të planifikuara</p>
-                  <button className="card-button">Shiko kalendarin</button>
                 </div>
               </div>
             </div>

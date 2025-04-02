@@ -1582,5 +1582,17 @@ nav ul li button {
   .opportunities-grid {
     grid-template-columns: 1fr;
   }
+.calendar-page {
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.calendar-page h2 {
+  color: #083081;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
 
 }

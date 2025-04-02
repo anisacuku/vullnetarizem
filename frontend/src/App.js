@@ -13,6 +13,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import MatchesPage from './pages/MatchesPage';
+import CalendarPage from './pages/CalendarPage';
 import OpportunityListPage from './pages/OpportunityListPage';
 import OpportunityDetailPage from './pages/OpportunityDetailPage';
 import VolunteerProfilePage from './pages/VolunteerProfilePage';
@@ -57,6 +58,14 @@ function AppRoutes() {
             element={
               <ProtectedRoute>
                 <MatchesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/calendar"
+            element={
+              <ProtectedRoute>
+                <CalendarPage />
               </ProtectedRoute>
             }
           />
