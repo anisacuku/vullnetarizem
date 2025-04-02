@@ -1,8 +1,7 @@
-// src/pages/RegisterPage.js
 import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FaUserPlus } from 'react-icons/fa';
+import { FaUserPlus, FaEye, FaEyeSlash } from 'react-icons/fa';
 import axios from 'axios';
 import API_BASE_URL from '../config';
 import { AuthContext } from '../context/AuthContext';
@@ -14,9 +13,11 @@ function RegisterPage() {
     email: '',
     password: '',
     confirmPassword: '',
-    userType: 'volunteer'
+    userType: 'volunteer' // Always volunteer
   });
 
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
@@ -44,14 +45,14 @@ function RegisterPage() {
         name: formData.name,
         email: formData.email,
         password: formData.password,
-        user_type: formData.userType
+        user_type: 'volunteer' // Always volunteer
       });
 
       // 2. Auto-login
       await login({ email: formData.email, password: formData.password });
 
       // 3. Redirect to dashboard
-      navigate('/dashboard');
+      navigate('/');
     } catch (err) {
       setError(err.response?.data?.detail || 'Registration failed');
     }
@@ -80,6 +81,7 @@ function RegisterPage() {
               className="auth-input"
             />
           </div>
+
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input
@@ -92,59 +94,51 @@ function RegisterPage() {
               className="auth-input"
             />
           </div>
+
           <div className="form-group">
             <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              className="auth-input"
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="confirmPassword">Confirm Password</label>
-            <input
-              type="password"
-              id="confirmPassword"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              required
-              className="auth-input"
-            />
-          </div>
-          <div className="form-group">
-            <label>I am a:</label>
-            <div className="radio-group">
-              <label>
-                <input
-                  type="radio"
-                  name="userType"
-                  value="volunteer"
-                  checked={formData.userType === 'volunteer'}
-                  onChange={handleChange}
-                />
-                Volunteer
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  name="userType"
-                  value="organization"
-                  checked={formData.userType === 'organization'}
-                  onChange={handleChange}
-                />
-                Organization
-              </label>
+            <div className="password-wrapper">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                className="auth-input"
+              />
+              <span onClick={() => setShowPassword(!showPassword)} className="toggle-password-icon">
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </span>
             </div>
           </div>
+
+          <div className="form-group">
+            <label htmlFor="confirmPassword">Confirm Password</label>
+            <div className="password-wrapper">
+              <input
+                type={showConfirmPassword ? 'text' : 'password'}
+                id="confirmPassword"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                required
+                className="auth-input"
+              />
+              <span onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="toggle-password-icon">
+                {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+              </span>
+            </div>
+          </div>
+
+          {/* Hidden input to enforce volunteer user type */}
+          <input type="hidden" name="userType" value="volunteer" />
+
           <button type="submit" className="auth-button">
             Register <FaUserPlus style={{ marginLeft: '8px' }} />
           </button>
         </form>
+
         <p className="auth-footer">
           Already have an account? <Link to="/login">Login</Link>
         </p>

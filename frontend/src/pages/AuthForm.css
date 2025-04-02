@@ -56,6 +56,28 @@ label {
   border-color: #083081;
 }
 
+/* Password Toggle Styling */
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 2.5rem; /* Add space for the icon */
+}
+
+.toggle-password-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #666;
+  font-size: 1rem;
+}
+
 /* RADIO BUTTON STYLING */
 .radio-group {
   display: flex;

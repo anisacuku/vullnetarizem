@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { FaSignInAlt } from 'react-icons/fa';
+import { FaSignInAlt, FaEye, FaEyeSlash } from 'react-icons/fa';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import './AuthForm.css';
@@ -9,15 +9,14 @@ import API_BASE_URL from '../config';
 function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { login, isAuthenticated } = useContext(AuthContext);
   const navigate = useNavigate();
 
-   useEffect(() => {
-    console.log('Authentication status changed:', isAuthenticated);
+  useEffect(() => {
     if (isAuthenticated) {
-      console.log('Navigating to home');
       navigate('/');
     }
   }, [isAuthenticated, navigate]);
@@ -31,8 +30,6 @@ function LoginPage() {
       const formData = new URLSearchParams();
       formData.append('username', email);
       formData.append('password', password);
-
-      console.log('Attempting login with:', email);
 
       const response = await axios.post(`${API_BASE_URL}/auth/token`, formData, {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -48,13 +45,7 @@ function LoginPage() {
         token,
       };
 
-      console.log('Login successful, calling login function');
-      await login(userData);  // Ensure this is awaited
-      
-      console.log('Login function completed');
-      
-      // Optional: Explicit navigation if needed
-      // navigate('');
+      await login(userData);
     } catch (err) {
       console.error('Login error:', err);
       if (err.response?.status === 401) {
@@ -85,13 +76,21 @@ function LoginPage() {
           </div>
           <div className="form-group">
             <label>Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="auth-input"
-            />
+            <div className="password-wrapper">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="auth-input"
+              />
+              <span
+                className="toggle-password-icon"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </span>
+            </div>
           </div>
           <button type="submit" className="auth-button" disabled={isLoading}>
             {isLoading ? 'Logging in...' : 'Login'}
