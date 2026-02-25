@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./MatchCard.css";
 import {
@@ -17,29 +17,48 @@ function clampScore(value) {
 }
 
 function scoreAccent(score) {
-  // returns CSS class name (kept simple & stable)
-  if (score >= 80) return "accent-green";
-  if (score >= 55) return "accent-blue";
-  if (score >= 35) return "accent-orange";
-  return "accent-pink";
+  return "accent-blue"; // FULL BLUE MODE
 }
 
 function MatchCard({ match }) {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const [animatedScore, setAnimatedScore] = useState(0);
 
-  const opp = match?.opportunity ?? match ?? {};
-  const score = useMemo(
-    () =>
-      clampScore(
-        match?.score ??
-          match?.match_score ??
-          match?.similarity ??
-          opp?.score ??
-          0
-      ),
-    [match, opp]
-  );
+  const opp = useMemo(() => match?.opportunity ?? match ?? {}, [match]);
+
+  const score = useMemo(() => {
+    return clampScore(
+      match?.score ??
+        match?.match_score ??
+        match?.similarity ??
+        opp?.score ??
+        0
+    );
+  }, [match, opp]);
+
+  // 🔥 Smooth animation
+  useEffect(() => {
+    let start = 0;
+    const duration = 900;
+    const increment = score / (duration / 16);
+
+    const animate = () => {
+      start += increment;
+      if (start >= score) {
+        setAnimatedScore(score);
+      } else {
+        setAnimatedScore(Math.floor(start));
+        requestAnimationFrame(animate);
+      }
+    };
+
+    requestAnimationFrame(animate);
+  }, [score]);
+
+  const onViewDetails = () => {
+    if (opp?.id != null) navigate(`/opportunities/${opp.id}`);
+  };
 
   const title = opp?.title ?? "Mundësi Vullnetarizmi";
   const org = opp?.organization ?? opp?.org ?? "Organizatë";
@@ -56,30 +75,29 @@ function MatchCard({ match }) {
     opp?.matched_skills ??
     [];
 
-  const skillsArray = Array.isArray(matchedSkills)
-    ? matchedSkills
-    : typeof matchedSkills === "string"
-    ? [matchedSkills]
-    : [];
-
-  const onViewDetails = () => {
-    if (opp?.id != null) navigate(`/opportunities/${opp.id}`);
-  };
-
-  const accent = scoreAccent(score);
+  const skillsArray = useMemo(() => {
+    if (Array.isArray(matchedSkills)) return matchedSkills;
+    if (typeof matchedSkills === "string") return [matchedSkills];
+    return [];
+  }, [matchedSkills]);
 
   return (
-    <article className={`match-card colorful ${accent}`}>
+    <article className="match-card accent-blue">
       <div className="match-card-top">
         <div className="match-score" aria-label={`Përputhje ${score}%`}>
           <div
             className="match-score-ring"
             style={{
-              background: `conic-gradient(var(--ring) ${score * 3.6}deg, rgba(15,23,42,0.10) 0deg)`,
+              background: `conic-gradient(var(--ring) ${
+                animatedScore * 3.4
+              }deg, rgba(15,23,42,0.10) 0deg)`,
             }}
           >
             <div className="match-score-inner">
-              <div className="match-score-value">{score}%</div>
+              <div className="match-score-value">
+                {animatedScore}%
+              </div>
+              <div className="match-score-label">Match</div>
             </div>
           </div>
         </div>
@@ -91,7 +109,7 @@ function MatchCard({ match }) {
 
         <button
           type="button"
-          className="match-toggle colorful"
+          className="match-toggle"
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
         >
@@ -107,16 +125,16 @@ function MatchCard({ match }) {
         </button>
       </div>
 
-      <div className="match-meta colorful">
-        <div className="match-chip colorful">
+      <div className="match-meta">
+        <div className="match-chip">
           <FaMapMarkerAlt />
           <span>{location}</span>
         </div>
-        <div className="match-chip colorful">
+        <div className="match-chip">
           <FaCalendarAlt />
           <span>{dateRange}</span>
         </div>
-        <div className="match-chip colorful">
+        <div className="match-chip">
           <FaClock />
           <span>{duration}</span>
         </div>
@@ -128,10 +146,12 @@ function MatchCard({ match }) {
 
           {skillsArray.length > 0 && (
             <div className="match-skills">
-              <div className="match-skills-title">Aftësitë e përputhura</div>
+              <div className="match-skills-title">
+                Aftësitë e përputhura
+              </div>
               <div className="match-skill-list">
                 {skillsArray.slice(0, 10).map((s, i) => (
-                  <span className="match-skill colorful" key={`${s}-${i}`}>
+                  <span className="match-skill" key={`${s}-${i}`}>
                     {String(s)}
                   </span>
                 ))}
@@ -142,7 +162,12 @@ function MatchCard({ match }) {
       )}
 
       <div className="match-actions">
-        <button type="button" className="match-btn colorful" onClick={onViewDetails}>
+        <button
+          type="button"
+          className="match-btn"
+          onClick={onViewDetails}
+          disabled={opp?.id == null}
+        >
           Shiko Detajet
         </button>
       </div>
