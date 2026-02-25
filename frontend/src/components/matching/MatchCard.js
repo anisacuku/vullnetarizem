@@ -1,240 +1,153 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import "./MatchCard.css";
 import {
   FaMapMarkerAlt,
   FaCalendarAlt,
   FaClock,
   FaChevronDown,
   FaChevronUp,
-  FaCheckCircle,
-  FaExclamationTriangle,
-  FaBuilding,
-  FaHeart
-} from 'react-icons/fa';
-import './MatchCard.css';
+} from "react-icons/fa";
 
-/**
- * Enhanced match card component that displays match details with an interactive UI
- *
- * @param {Object} match - Match object with opportunity and score details
- */
-const EnhancedMatchCard = ({ match }) => {
-  const [expanded, setExpanded] = useState(false);
+function clampScore(value) {
+  const n = Number(value);
+  if (Number.isNaN(n)) return 0;
+  if (n <= 1) return Math.round(n * 100);
+  return Math.max(0, Math.min(100, Math.round(n)));
+}
 
-  if (!match || !match.opportunity) return null;
+function scoreAccent(score) {
+  // returns CSS class name (kept simple & stable)
+  if (score >= 80) return "accent-green";
+  if (score >= 55) return "accent-blue";
+  if (score >= 35) return "accent-orange";
+  return "accent-pink";
+}
 
-  const { opportunity, score, matched_skills, matching_interests, match_details } = match;
+function MatchCard({ match }) {
+  const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
 
-  // Calculate color for score circle based on match percentage
-  const getScoreColor = (score) => {
-    if (score >= 80) return '#4CAF50';  // Green for excellent matches
-    if (score >= 60) return '#8BC34A';  // Light green for good matches
-    if (score >= 40) return '#FFC107';  // Yellow for decent matches
-    return '#FF5722';  // Orange-red for poor matches
+  const opp = match?.opportunity ?? match ?? {};
+  const score = useMemo(
+    () =>
+      clampScore(
+        match?.score ??
+          match?.match_score ??
+          match?.similarity ??
+          opp?.score ??
+          0
+      ),
+    [match, opp]
+  );
+
+  const title = opp?.title ?? "Mundësi Vullnetarizmi";
+  const org = opp?.organization ?? opp?.org ?? "Organizatë";
+  const description = opp?.description ?? "";
+
+  const location = opp?.location ?? opp?.city ?? "—";
+  const duration = opp?.duration ?? opp?.time ?? opp?.hours ?? "—";
+  const dateRange = opp?.date_range ?? opp?.dates ?? opp?.date ?? "—";
+
+  const matchedSkills =
+    match?.matched_skills ??
+    match?.skills ??
+    match?.reasons ??
+    opp?.matched_skills ??
+    [];
+
+  const skillsArray = Array.isArray(matchedSkills)
+    ? matchedSkills
+    : typeof matchedSkills === "string"
+    ? [matchedSkills]
+    : [];
+
+  const onViewDetails = () => {
+    if (opp?.id != null) navigate(`/opportunities/${opp.id}`);
   };
 
-  // Get percentage fill for score circle (conic gradient)
-  const getScoreGradient = (score) => {
-    const color = getScoreColor(score);
-    return `conic-gradient(${color} ${score}%, #f3f3f3 0)`;
-  };
-
-  // Format date for consistent display
-  const formatDate = (dateString) => {
-    if (!dateString) return 'Fleksibël';
-    return dateString;
-  };
+  const accent = scoreAccent(score);
 
   return (
-    <div className="enhanced-match-card">
-      <div className="match-card-header">
-        <div className="match-score-container">
+    <article className={`match-card colorful ${accent}`}>
+      <div className="match-card-top">
+        <div className="match-score" aria-label={`Përputhje ${score}%`}>
           <div
-            className="match-score-circle"
-            style={{ background: getScoreGradient(score) }}
+            className="match-score-ring"
+            style={{
+              background: `conic-gradient(var(--ring) ${score * 3.6}deg, rgba(15,23,42,0.10) 0deg)`,
+            }}
           >
             <div className="match-score-inner">
-              <span className="match-percentage">{score}%</span>
+              <div className="match-score-value">{score}%</div>
             </div>
           </div>
-          <span className="match-label">Përputhje</span>
         </div>
 
-        <div className="match-opportunity-header">
-          <h3 className="opportunity-title">{opportunity.title}</h3>
-          <div className="organization-info">
-            <FaBuilding className="org-icon" />
-            <span>{opportunity.organization}</span>
-          </div>
+        <div className="match-head">
+          <h3 className="match-title">{title}</h3>
+          <div className="match-org">{org}</div>
+        </div>
+
+        <button
+          type="button"
+          className="match-toggle colorful"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+        >
+          {open ? (
+            <>
+              Më pak <FaChevronUp />
+            </>
+          ) : (
+            <>
+              Më shumë <FaChevronDown />
+            </>
+          )}
+        </button>
+      </div>
+
+      <div className="match-meta colorful">
+        <div className="match-chip colorful">
+          <FaMapMarkerAlt />
+          <span>{location}</span>
+        </div>
+        <div className="match-chip colorful">
+          <FaCalendarAlt />
+          <span>{dateRange}</span>
+        </div>
+        <div className="match-chip colorful">
+          <FaClock />
+          <span>{duration}</span>
         </div>
       </div>
 
-      <div className="match-card-body">
-        <p className="opportunity-description">
-          {opportunity.description.length > 160
-            ? `${opportunity.description.substring(0, 160)}...`
-            : opportunity.description}
-        </p>
+      {open && (
+        <div className="match-body">
+          {description && <p className="match-desc">{description}</p>}
 
-        <div className="opportunity-meta">
-          <div className="opportunity-meta-item">
-            <FaMapMarkerAlt className="meta-icon" />
-            <span>{opportunity.location}</span>
-          </div>
-
-          <div className="opportunity-meta-item">
-            <FaCalendarAlt className="meta-icon" />
-            <span>{formatDate(opportunity.date)}</span>
-          </div>
-
-          <div className="opportunity-meta-item">
-            <FaClock className="meta-icon" />
-            <span>{opportunity.time_requirements || 'Fleksibël'}</span>
-          </div>
-        </div>
-
-        {matched_skills && matched_skills.length > 0 && (
-          <div className="match-skills">
-            <div className="match-skills-header">
-              <FaCheckCircle className="skills-icon" />
-              <span>Aftësitë e përputhura:</span>
-            </div>
-            <div className="skill-tags">
-              {matched_skills.slice(0, 3).map((skill, index) => (
-                <span key={index} className="skill-tag">{skill}</span>
-              ))}
-              {matched_skills.length > 3 && (
-                <span className="more-tag">+{matched_skills.length - 3}</span>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Expandable section with more details */}
-        {expanded && (
-          <div className="match-details-expanded">
-            <div className="match-breakdown">
-              <h4>Detaje Përputhshmërie</h4>
-
-              <div className="score-breakdown">
-                <div className="score-category">
-                  <span className="category-label">Aftësi</span>
-                  <div className="score-bar-container">
-                    <div
-                      className="score-bar"
-                      style={{
-                        width: `${match_details?.skillScore || 0}%`,
-                        backgroundColor: getScoreColor(match_details?.skillScore || 0)
-                      }}
-                    ></div>
-                  </div>
-                  <span className="category-score">{match_details?.skillScore || 0}%</span>
-                </div>
-
-                <div className="score-category">
-                  <span className="category-label">Interesa</span>
-                  <div className="score-bar-container">
-                    <div
-                      className="score-bar"
-                      style={{
-                        width: `${match_details?.interestScore || 0}%`,
-                        backgroundColor: getScoreColor(match_details?.interestScore || 0)
-                      }}
-                    ></div>
-                  </div>
-                  <span className="category-score">{match_details?.interestScore || 0}%</span>
-                </div>
-
-                <div className="score-category">
-                  <span className="category-label">Disponueshmëri</span>
-                  <div className="score-bar-container">
-                    <div
-                      className="score-bar"
-                      style={{
-                        width: `${match_details?.availabilityScore || 0}%`,
-                        backgroundColor: getScoreColor(match_details?.availabilityScore || 0)
-                      }}
-                    ></div>
-                  </div>
-                  <span className="category-score">{match_details?.availabilityScore || 0}%</span>
-                </div>
-
-                <div className="score-category">
-                  <span className="category-label">Vendndodhje</span>
-                  <div className="score-bar-container">
-                    <div
-                      className="score-bar"
-                      style={{
-                        width: `${match_details?.locationScore || 0}%`,
-                        backgroundColor: getScoreColor(match_details?.locationScore || 0)
-                      }}
-                    ></div>
-                  </div>
-                  <span className="category-score">{match_details?.locationScore || 0}%</span>
-                </div>
+          {skillsArray.length > 0 && (
+            <div className="match-skills">
+              <div className="match-skills-title">Aftësitë e përputhura</div>
+              <div className="match-skill-list">
+                {skillsArray.slice(0, 10).map((s, i) => (
+                  <span className="match-skill colorful" key={`${s}-${i}`}>
+                    {String(s)}
+                  </span>
+                ))}
               </div>
-
-              {/* Matching interests */}
-              {matching_interests && matching_interests.length > 0 && (
-                <div className="additional-match-info">
-                  <h5>Interesat e Përputhura</h5>
-                  <div className="interest-tags">
-                    {matching_interests.map((interest, index) => (
-                      <span key={index} className="interest-tag">
-                        <FaHeart style={{ fontSize: '0.8em' }} />
-                        {interest}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Missing skills */}
-              {match_details?.missingSkills && match_details.missingSkills.length > 0 && (
-                <div className="additional-match-info missing-skills">
-                  <h5>
-                    <FaExclamationTriangle className="warning-icon" />
-                    Aftësi të Kërkuara që Mungojnë
-                  </h5>
-                  <div className="missing-skill-tags">
-                    {match_details.missingSkills.map((skill, index) => (
-                      <span key={index} className="missing-skill-tag">{skill}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
-          </div>
-        )}
-
-        <div className="match-card-actions">
-          <button
-            className="details-toggle-button"
-            onClick={() => setExpanded(!expanded)}
-          >
-            {expanded ? (
-              <>
-                <span>Më pak detaje</span>
-                <FaChevronUp className="toggle-icon" />
-              </>
-            ) : (
-              <>
-                <span>Më shumë detaje</span>
-                <FaChevronDown className="toggle-icon" />
-              </>
-            )}
-          </button>
-
-          <Link
-            to={`/opportunities/${opportunity.id}`}
-            className="view-opportunity-button"
-          >
-            Shiko Detajet
-          </Link>
+          )}
         </div>
-      </div>
-    </div>
-  );
-};
+      )}
 
-export default EnhancedMatchCard;
+      <div className="match-actions">
+        <button type="button" className="match-btn colorful" onClick={onViewDetails}>
+          Shiko Detajet
+        </button>
+      </div>
+    </article>
+  );
+}
+
+export default MatchCard;

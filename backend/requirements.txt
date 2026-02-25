@@ -6,7 +6,7 @@ blis==1.2.0
 catalogue==2.0.10
 certifi==2025.1.31
 charset-normalizer==3.4.1
-click==8.1.8
+click==8.3.1
 cloudpathlib==0.21.0
 colorama==0.4.6
 confection==0.1.5
@@ -32,6 +32,8 @@ marisa-trie==1.2.1
 markdown-it-py==3.0.0
 MarkupSafe==3.0.2
 mdurl==0.1.2
+sentence-transformers==2.7.0
+torch>=2.0.0
 murmurhash==1.0.12
 MyApplication==0.1.0
 nltk==3.9.1
@@ -72,7 +74,7 @@ starlette==0.46.1
 thinc==8.3.4
 threadpoolctl==3.6.0
 tqdm==4.67.1
-typer==0.15.2
+typer==0.24.1
 typing-inspection==0.4.0
 typing_extensions==4.13.0
 tzdata==2025.2
