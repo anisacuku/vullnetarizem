@@ -4,6 +4,7 @@ import { findRecommendations } from "../services/profileMatchingService";
 import MatchCard from "../components/matching/MatchCard";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import "../App.css";
+import "./MatchesPage.css";
 
 function MatchesPage() {
   const { user } = useContext(AuthContext);
@@ -13,7 +14,9 @@ function MatchesPage() {
   const [profileData, setProfileData] = useState(null);
 
   const displayName = useMemo(() => {
-    const emailName = user?.email?.includes("@") ? user.email.split("@")[0] : "";
+    const emailName = user?.email?.includes("@")
+      ? user.email.split("@")[0]
+      : "";
     return profileData?.name || user?.name || emailName || "Përdorues";
   }, [profileData, user]);
 
@@ -71,26 +74,13 @@ function MatchesPage() {
         <div className="matches-hero-inner">
           <div className="matches-hero-left">
             <div className="matches-badge">AI RECOMMENDATIONS</div>
-            <h1 className="matches-h1">Përshëndetje, {displayName} ✨</h1>
+            <h1 className="matches-h1">
+              Përshëndetje, {displayName} ✨
+            </h1>
             <p className="matches-lead">
-              Këto janë mundësitë që përputhen më së shumti me profilin tënd. Plotëso aftësitë dhe interesat për rezultate edhe më të mira.
+              Këto janë mundësitë që përputhen më së shumti me profilin tënd.
+              Plotëso aftësitë dhe interesat për rezultate edhe më të mira.
             </p>
-          </div>
-
-          <div className="matches-hero-right">
-            <div className="matches-hero-stat colorful a">
-              <div className="matches-hero-stat-label">Rezultate</div>
-              <div className="matches-hero-stat-value">
-                {loading ? "—" : matches.length}
-              </div>
-            </div>
-
-            <div className="matches-hero-stat colorful b">
-              <div className="matches-hero-stat-label">Statusi</div>
-              <div className="matches-hero-stat-value small">
-                {profileData ? "Aktiv" : "Plotëso profilin 📝"}
-              </div>
-            </div>
           </div>
         </div>
       </section>
@@ -103,7 +93,8 @@ function MatchesPage() {
 
             {!loading && matches.length > 0 && (
               <div className="matches-pill colorful">
-                {matches.length} rezultat{matches.length === 1 ? "" : "e"}
+                {matches.length} rezultat
+                {matches.length === 1 ? "" : "e"}
               </div>
             )}
           </div>
@@ -116,20 +107,26 @@ function MatchesPage() {
             <div className="matches-empty colorful">
               <h3>Plotëso profilin</h3>
               <p>
-                Nuk kemi të dhëna profili për të krijuar përputhje. Shko te Dashboard → Përditëso Profilin dhe shto aftësi/interesa.
+                Nuk kemi të dhëna profili për të krijuar përputhje.
+                Shko te Dashboard → Përditëso Profilin dhe shto
+                aftësi/interesa.
               </p>
             </div>
           ) : matches.length === 0 ? (
             <div className="matches-empty colorful">
               <h3>Nuk ka përputhje ende</h3>
               <p>
-                Përditëso profilin (aftësi/interesa) që sistemi të sugjerojë mundësi më të mira.
+                Përditëso profilin (aftësi/interesa) që sistemi
+                të sugjerojë mundësi më të mira.
               </p>
             </div>
           ) : (
             <div className="matches-grid">
               {matches.map((match, idx) => (
-                <MatchCard key={match?.opportunity?.id ?? idx} match={match} />
+                <MatchCard
+                  key={match?.opportunity?.id ?? idx}
+                  match={match}
+                />
               ))}
             </div>
           )}

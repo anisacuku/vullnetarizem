@@ -4,9 +4,8 @@ import { AuthContext } from "../context/AuthContext";
 import {
   FaUserCircle,
   FaUserEdit,
-  FaPaperPlane,
-  FaArrowRight,
   FaRegLightbulb,
+  FaArrowRight,
 } from "react-icons/fa";
 
 import ProfileEditForm from "../components/profile/ProfileEditForm";
@@ -31,22 +30,31 @@ const calculateProfileCompletion = (profile) => {
   return Math.min(100, 10 + Math.round((filled / fields.length) * 90));
 };
 
+function prettifyEmailName(email) {
+  if (!email || typeof email !== "string") return "";
+  const base = email.split("@")[0] || "";
+  return base
+    .replace(/[._-]+/g, " ")
+    .replace(/\d+/g, "")
+    .trim()
+    .split(" ")
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
 /* ---------------- DASHBOARD ---------------- */
 
 function DashboardPage() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const [greeting, setGreeting] = useState("Mirësevini");
+  const [greeting, setGreeting] = useState("Përshëndetje");
   const [username, setUsername] = useState("");
   const [showProfileEdit, setShowProfileEdit] = useState(false);
   const [userProfile, setUserProfile] = useState(null);
   const [topMatches, setTopMatches] = useState([]);
-
-  const [stats, setStats] = useState({
-    matchedOpportunities: 0,
-    appliedOpportunities: [],
-  });
+  const [applied, setApplied] = useState([]);
 
   const completion = useMemo(
     () => calculateProfileCompletion(userProfile),
@@ -65,13 +73,10 @@ function DashboardPage() {
   useEffect(() => {
     if (!user?.email) return;
 
-    const extractedName = user.email.split("@")[0];
-    setUsername(extractedName);
+    setUsername(prettifyEmailName(user.email));
 
     try {
-      const savedProfile = localStorage.getItem(
-        `user_profile_${user.email}`
-      );
+      const savedProfile = localStorage.getItem(`user_profile_${user.email}`);
       if (savedProfile) setUserProfile(JSON.parse(savedProfile));
 
       const recommendationsData = localStorage.getItem(
@@ -81,7 +86,24 @@ function DashboardPage() {
       let recs = [];
       if (recommendationsData) recs = JSON.parse(recommendationsData);
 
+      /* 🔥 PROPER TITLE + ORG DETECTION */
       const mappedMatches = recs.map((r, idx) => {
+        const title =
+          r.title ??
+          r.name ??
+          r.opportunity_title ??
+          r.position ??
+          r.opportunity?.title ??
+          r.opportunity?.name ??
+          `Mundësi #${idx + 1}`;
+
+        const organization =
+          r.organization ??
+          r.org ??
+          r.company ??
+          r.opportunity?.organization ??
+          "Organizatë";
+
         const rawScore =
           r.score ?? r.match_score ?? r.similarity ?? r.matchScore ?? 0.75;
 
@@ -89,13 +111,15 @@ function DashboardPage() {
           rawScore > 1 ? Math.round(rawScore) : Math.round(rawScore * 100);
 
         return {
-          id: r.id ?? idx + 1,
-          title: r.title ?? "Mundësi Vullnetarizmi",
-          organization: r.organization ?? "Organizatë",
+          id: r.id ?? r.opportunity?.id ?? idx + 1,
+          title,
+          organization,
           score: Math.max(0, Math.min(100, score)),
           reasons: r.reasons ?? [],
         };
       });
+
+      setTopMatches(mappedMatches);
 
       const appliedOpps = JSON.parse(
         localStorage.getItem(`applied_${user.email}`) || "[]"
@@ -103,35 +127,15 @@ function DashboardPage() {
 
       const appliedDetails = appliedOpps.map((id) => ({
         id,
-        title:
-          id === 1
-            ? "Community Clean-up"
-            : id === 2
-            ? "Teaching Assistant"
-            : `Opportunity #${id}`,
-        organization:
-          id === 1
-            ? "Green Albania"
-            : id === 2
-            ? "Fondacioni Arsimor i Shqipërisë"
-            : "Organizatë",
-        date:
-          id === 1
-            ? "15 Maj, 2025"
-            : id === 2
-            ? "1 Qershor - 31 Gusht, 2025"
-            : "Data në pritje",
+        title: `Opportunity #${id}`,
+        organization: "Organizatë",
+        date: "Data në pritje",
         status: "Applied",
       }));
 
-      setTopMatches(mappedMatches);
-
-      setStats({
-        matchedOpportunities: recs.length,
-        appliedOpportunities: appliedDetails,
-      });
-    } catch (error) {
-      console.error("Error loading dashboard data:", error);
+      setApplied(appliedDetails);
+    } catch (err) {
+      console.error(err);
     }
   }, [user]);
 
@@ -144,42 +148,27 @@ function DashboardPage() {
     setShowProfileEdit(false);
   };
 
-  const displayName = userProfile?.name || username || "Përdorues";
+  const displayName =
+    userProfile?.name || user?.name || username || "Përdorues";
 
-  /* EDIT MODE */
   if (showProfileEdit) {
     return (
       <div className="dash2-wrap">
         <div className="dash2-shell">
-          <div className="dash2-editHeader">
-            <h2>Përditëso Profilin Tuaj</h2>
-            <button
-              className="dash2-btn ghost"
-              onClick={() => setShowProfileEdit(false)}
-            >
-              Kthehu prapa
-            </button>
-          </div>
-
-          <div className="dash2-editCard">
-            <ProfileEditForm
-              initialData={userProfile}
-              userEmail={user?.email}
-              onComplete={handleProfileUpdate}
-              onCancel={() => setShowProfileEdit(false)}
-            />
-          </div>
+          <ProfileEditForm
+            initialData={userProfile}
+            userEmail={user?.email}
+            onComplete={handleProfileUpdate}
+            onCancel={() => setShowProfileEdit(false)}
+          />
         </div>
       </div>
     );
   }
 
-  /* MAIN DASHBOARD */
-
   return (
     <div className="dash2-wrap">
       <div className="dash2-shell">
-
         {/* HERO */}
         <section className="dash2-hero">
           <div className="dash2-heroLeft">
@@ -188,6 +177,7 @@ function DashboardPage() {
             </div>
 
             <div className="dash2-heroText">
+              <div className="dash2-eyebrow">DASHBOARD</div>
               <h1>
                 {greeting}, <span className="dash2-name">{displayName}</span> 👋
               </h1>
@@ -196,20 +186,6 @@ function DashboardPage() {
               <div className="dash2-actions">
                 <button
                   className="dash2-btn primary"
-                  onClick={() => navigate("/matches")}
-                >
-                  Shiko përputhjet <FaArrowRight />
-                </button>
-
-                <button
-                  className="dash2-btn"
-                  onClick={() => navigate("/opportunities")}
-                >
-                  Shfleto Mundësitë
-                </button>
-
-                <button
-                  className="dash2-btn ghost"
                   onClick={() => setShowProfileEdit(true)}
                 >
                   <FaUserEdit /> Përditëso Profilin
@@ -217,57 +193,26 @@ function DashboardPage() {
               </div>
             </div>
           </div>
-
-          <div className="dash2-heroRight">
-            <div className="dash2-mini">
-              <div className="dash2-miniLabel">Profili</div>
-              <div className="dash2-miniValue">{completion}%</div>
-              <div className="dash2-miniHint">Plotësim</div>
-            </div>
-
-            <div className="dash2-mini">
-              <div className="dash2-miniLabel">Përputhje</div>
-              <div className="dash2-miniValue">
-                {stats.matchedOpportunities}
-              </div>
-              <div className="dash2-miniHint">Rekomandime</div>
-            </div>
-          </div>
         </section>
 
         {/* PROFILE COMPLETION */}
         <section className="dash2-section">
-          <Card radius="lg" shadow="sm" className="dash2-card dash2-profileCard">
+          <Card radius="lg" shadow="sm" className="dash2-card">
             <div className="dash2-profileTop">
-              <div className="dash2-profileLeft">
+              <div>
                 <div className="dash2-profileTitle">Profili yt</div>
-                <Badge variant="light" className="dash2-badge">
-                  AI MATCHING
-                </Badge>
+                <Badge variant="light">AI MATCHING</Badge>
               </div>
               <div className="dash2-profilePct">{completion}%</div>
             </div>
-
             <Progress value={completion} mt="sm" radius="xl" />
-
-            <div className="dash2-profileHint">
-              Sa më i plotë profili, aq më të sakta përputhjet e AI.
-            </div>
-
-            {completion < 70 && (
-              <div className="dash2-tip">
-                <FaRegLightbulb />
-                <span>
-                  Shto <b>aftësi</b> dhe <b>interesa</b> për rezultate më të mira.
-                </span>
-              </div>
-            )}
           </Card>
         </section>
 
         {/* PANELS */}
         <section className="dash2-panels">
-          <Card radius="lg" shadow="sm" className="dash2-card dash2-panel">
+          {/* MATCHES */}
+          <Card radius="lg" shadow="sm" className="dash2-card">
             <div className="dash2-panelHead">
               <h3>Top Përputhjet</h3>
               <Link to="/matches" className="dash2-link">
@@ -278,17 +223,19 @@ function DashboardPage() {
             <TopMatchesWidget matches={topMatches} />
           </Card>
 
-          <Card radius="lg" shadow="sm" className="dash2-card dash2-panel">
+          {/* APPLICATIONS */}
+          <Card radius="lg" shadow="sm" className="dash2-card">
             <div className="dash2-panelHead">
               <h3>Aplikime të Bëra</h3>
-              <Link to="/opportunities" className="dash2-link">
-                Gjej mundësi →
-              </Link>
             </div>
 
-            {stats.appliedOpportunities.length === 0 ? (
+            {applied.length === 0 ? (
               <div className="dash2-empty">
-                <p>Ende nuk ke bërë aplikime.</p>
+                <div className="dash2-emptyIcon">📭</div>
+                <p className="dash2-emptyTitle">
+                  Ende nuk ke bërë aplikime.
+                </p>
+
                 <button
                   className="dash2-btn primary"
                   onClick={() => navigate("/opportunities")}
@@ -298,7 +245,7 @@ function DashboardPage() {
               </div>
             ) : (
               <div className="dash2-list">
-                {stats.appliedOpportunities.map((app) => (
+                {applied.map((app) => (
                   <div className="dash2-item" key={app.id}>
                     <div>
                       <div className="dash2-itemTitle">{app.title}</div>

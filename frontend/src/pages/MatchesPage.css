@@ -1,0 +1,152 @@
+/* ============================= */
+/* MATCHES PAGE STYLING */
+/* ============================= */
+
+.matches-page {
+  padding-bottom: 40px;
+}
+
+/* ================= HERO ================= */
+
+.matches-hero {
+  padding: 36px 0;
+  background: linear-gradient(
+    135deg,
+    rgba(10, 42, 67, 0.08),
+    rgba(10, 42, 67, 0.02)
+  );
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.matches-hero-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.matches-hero-left {
+  flex: 1;
+  min-width: 280px;
+}
+
+.matches-badge {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #0a2a43;
+  margin-bottom: 10px;
+}
+
+.matches-h1 {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0;
+  color: #0f172a;
+}
+
+.matches-lead {
+  margin-top: 16px;
+  max-width: 680px;
+  font-size: 15px;
+  line-height: 1.75;
+  color: rgba(15, 23, 42, 0.8);
+  background: rgba(10, 42, 67, 0.05);
+  padding: 14px 18px;
+  border-radius: 14px;
+}
+
+/* ================= STATS ================= */
+
+.matches-hero-right {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.matches-hero-stat {
+  padding: 18px 22px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  min-width: 150px;
+}
+
+.matches-hero-stat-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(15, 23, 42, 0.6);
+}
+
+.matches-hero-stat-value {
+  font-size: 24px;
+  font-weight: 800;
+  margin-top: 6px;
+  color: #0a2a43;
+}
+
+.matches-hero-stat-value.small {
+  font-size: 15px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+/* ================= CONTENT ================= */
+
+.matches-content {
+  padding-top: 30px;
+}
+
+.matches-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.matches-titlebar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.matches-h2 {
+  font-size: 22px;
+  margin: 0;
+  color: #0f172a;
+}
+
+.matches-pill {
+  background: #0a2a43;
+  color: #ffffff;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.matches-loading {
+  padding: 40px 0;
+  text-align: center;
+}
+
+.matches-empty {
+  padding: 28px;
+  border-radius: 16px;
+  background: rgba(10, 42, 67, 0.05);
+  border: 1px dashed rgba(10, 42, 67, 0.25);
+}
+
+.matches-empty h3 {
+  margin-top: 0;
+}
+
+.matches-grid {
+  display: grid;
+  gap: 20px;
+}
