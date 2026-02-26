@@ -3,18 +3,17 @@ import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import {
   FaUserCircle,
-  FaClipboardCheck,
-  FaCalendarAlt,
   FaUserEdit,
   FaPaperPlane,
   FaArrowRight,
+  FaRegLightbulb,
 } from "react-icons/fa";
 
 import ProfileEditForm from "../components/profile/ProfileEditForm";
 import TopMatchesWidget from "../components/dashboard/TopMatchesWidget";
 
-import { Card, SimpleGrid, Progress, Badge } from "@mantine/core";
-import "../App.css";
+import { Card, Progress, Badge } from "@mantine/core";
+import "./DashboardPage.css";
 
 /* ---------------- PROFILE COMPLETION ---------------- */
 
@@ -47,7 +46,6 @@ function DashboardPage() {
   const [stats, setStats] = useState({
     matchedOpportunities: 0,
     appliedOpportunities: [],
-    upcomingActivities: [],
   });
 
   const completion = useMemo(
@@ -55,8 +53,7 @@ function DashboardPage() {
     [userProfile]
   );
 
-  /* ---------------- LOAD USER DATA ---------------- */
-
+  /* Greeting */
   useEffect(() => {
     const hour = new Date().getHours();
     if (hour < 12) setGreeting("Mirëmëngjes");
@@ -64,6 +61,7 @@ function DashboardPage() {
     else setGreeting("Mirëmbrëma");
   }, []);
 
+  /* Load Data */
   useEffect(() => {
     if (!user?.email) return;
 
@@ -71,11 +69,11 @@ function DashboardPage() {
     setUsername(extractedName);
 
     try {
-      // PROFILE
-      const savedProfile = localStorage.getItem(`user_profile_${user.email}`);
+      const savedProfile = localStorage.getItem(
+        `user_profile_${user.email}`
+      );
       if (savedProfile) setUserProfile(JSON.parse(savedProfile));
 
-      // RECOMMENDATIONS
       const recommendationsData = localStorage.getItem(
         `user_recommendations_${user.email}`
       );
@@ -99,9 +97,6 @@ function DashboardPage() {
         };
       });
 
-      setTopMatches(mappedMatches);
-
-      // APPLIED
       const appliedOpps = JSON.parse(
         localStorage.getItem(`applied_${user.email}`) || "[]"
       );
@@ -129,17 +124,16 @@ function DashboardPage() {
         status: "Applied",
       }));
 
+      setTopMatches(mappedMatches);
+
       setStats({
         matchedOpportunities: recs.length,
         appliedOpportunities: appliedDetails,
-        upcomingActivities: appliedDetails, // keeping same for now
       });
     } catch (error) {
       console.error("Error loading dashboard data:", error);
     }
   }, [user]);
-
-  /* ---------------- PROFILE UPDATE ---------------- */
 
   const handleProfileUpdate = (updatedProfile) => {
     localStorage.setItem(
@@ -152,194 +146,174 @@ function DashboardPage() {
 
   const displayName = userProfile?.name || username || "Përdorues";
 
-  /* ---------------- UI ---------------- */
+  /* EDIT MODE */
+  if (showProfileEdit) {
+    return (
+      <div className="dash2-wrap">
+        <div className="dash2-shell">
+          <div className="dash2-editHeader">
+            <h2>Përditëso Profilin Tuaj</h2>
+            <button
+              className="dash2-btn ghost"
+              onClick={() => setShowProfileEdit(false)}
+            >
+              Kthehu prapa
+            </button>
+          </div>
+
+          <div className="dash2-editCard">
+            <ProfileEditForm
+              initialData={userProfile}
+              userEmail={user?.email}
+              onComplete={handleProfileUpdate}
+              onCancel={() => setShowProfileEdit(false)}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  /* MAIN DASHBOARD */
 
   return (
-    <div className="dash-wrap">
-      {!showProfileEdit ? (
-        <>
-          {/* HERO */}
-          <section className="dash-hero">
-            <div className="dash-hero-inner">
-              <div className="dash-hero-left">
-                <div className="dash-avatar">
-                  <FaUserCircle size={58} />
-                </div>
+    <div className="dash2-wrap">
+      <div className="dash2-shell">
 
-                <div className="dash-hero-text">
-                  <h1 className="dash-h1">
-                    {greeting}, <span>{displayName}</span> 👋
-                  </h1>
-                  <p className="dash-sub">
-                    Paneli yt personal për përputhje dhe aplikime.
-                  </p>
+        {/* HERO */}
+        <section className="dash2-hero">
+          <div className="dash2-heroLeft">
+            <div className="dash2-avatar">
+              <FaUserCircle />
+            </div>
 
-                  <div className="dash-actions">
-                    <button
-                      className="dash-btn primary"
-                      onClick={() => navigate("/matches")}
-                    >
-                      Shiko përputhjet <FaArrowRight />
-                    </button>
+            <div className="dash2-heroText">
+              <h1>
+                {greeting}, <span className="dash2-name">{displayName}</span> 👋
+              </h1>
+              <p>Paneli yt personal për përputhje dhe aplikime.</p>
 
-                    <button
-                      className="dash-btn ghost"
-                      onClick={() => navigate("/opportunities")}
-                    >
-                      Shfleto Mundësitë
-                    </button>
+              <div className="dash2-actions">
+                <button
+                  className="dash2-btn primary"
+                  onClick={() => navigate("/matches")}
+                >
+                  Shiko përputhjet <FaArrowRight />
+                </button>
 
-                    <button
-                      className="dash-btn outline"
-                      onClick={() => setShowProfileEdit(true)}
-                    >
-                      <FaUserEdit /> Përditëso Profilin
-                    </button>
-                  </div>
-                </div>
-              </div>
+                <button
+                  className="dash2-btn"
+                  onClick={() => navigate("/opportunities")}
+                >
+                  Shfleto Mundësitë
+                </button>
 
-              <div className="dash-hero-right">
-                <div className="dash-mini">
-                  <div className="dash-mini-label">Profili</div>
-                  <div className="dash-mini-value">{completion}%</div>
-                  <div className="dash-mini-hint">Plotësim</div>
-                </div>
-
-                <div className="dash-mini">
-                  <div className="dash-mini-label">Përputhje</div>
-                  <div className="dash-mini-value">{stats.matchedOpportunities}</div>
-                  <div className="dash-mini-hint">Rekomandime</div>
-                </div>
-
-                <div className="dash-mini">
-                  <div className="dash-mini-label">Aplikime</div>
-                  <div className="dash-mini-value">
-                    {stats.appliedOpportunities.length}
-                  </div>
-                  <div className="dash-mini-hint">Totali</div>
-                </div>
+                <button
+                  className="dash2-btn ghost"
+                  onClick={() => setShowProfileEdit(true)}
+                >
+                  <FaUserEdit /> Përditëso Profilin
+                </button>
               </div>
             </div>
-          </section>
+          </div>
 
-          {/* CONTENT */}
-          <section className="dash-content">
-            <div className="dash-container">
-              {/* KPI CARDS */}
-              <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md">
-                <Card className="dash-kpi" radius="lg" shadow="sm">
-                  <div className="dash-kpi-top">
-                    <p className="dash-kpi-title">Përputhje</p>
-                    <FaClipboardCheck />
-                  </div>
-                  <div className="dash-kpi-sub">Mundësi të rekomanduara për ty</div>
-                  <div className="dash-kpi-value">{stats.matchedOpportunities}</div>
-                  <Link to="/matches" className="dash-kpi-link">
-                    Shiko përputhjet →
-                  </Link>
-                </Card>
-
-                <Card className="dash-kpi" radius="lg" shadow="sm">
-                  <div className="dash-kpi-top">
-                    <p className="dash-kpi-title">Aplikime</p>
-                    <FaPaperPlane />
-                  </div>
-                  <div className="dash-kpi-sub">Aplikimet që ke bërë</div>
-                  <div className="dash-kpi-value">{stats.appliedOpportunities.length}</div>
-                </Card>
-
-                <Card className="dash-kpi" radius="lg" shadow="sm">
-                  <div className="dash-kpi-top">
-                    <p className="dash-kpi-title">Aktivitete</p>
-                    <FaCalendarAlt />
-                  </div>
-                  <div className="dash-kpi-sub">Aktivitetet e planifikuara</div>
-                  <div className="dash-kpi-value">{stats.upcomingActivities.length}</div>
-                </Card>
-              </SimpleGrid>
-
-              {/* PROFILE COMPLETION */}
-              <Card radius="lg" shadow="sm" className="dash-profile">
-                <div className="dash-profile-top">
-                  <div className="dash-profile-left">
-                    <span className="dash-profile-title">Profili yt</span>
-                    <Badge ml="sm" variant="light">
-                      AI MATCHING
-                    </Badge>
-                  </div>
-
-                  <span className="dash-profile-pct">{completion}%</span>
-                </div>
-
-                <Progress value={completion} mt="sm" radius="xl" />
-                <p className="dash-profile-hint">
-                  Plotëso profilin për rekomandime më të sakta.
-                </p>
-              </Card>
-
-              {/* LOWER GRID */}
-              <div className="dash-lower">
-                <div className="dash-panel">
-                  <div className="dash-panel-head">
-                    <h3>Top Përputhjet</h3>
-                    <Link to="/matches" className="dash-panel-link">
-                      Shiko të gjitha →
-                    </Link>
-                  </div>
-                  <TopMatchesWidget matches={topMatches} />
-                </div>
-
-                <div className="dash-panel">
-                  <div className="dash-panel-head">
-                    <h3>Aplikime të Bëra</h3>
-                    <Link to="/opportunities" className="dash-panel-link">
-                      Gjej mundësi →
-                    </Link>
-                  </div>
-
-                  {stats.appliedOpportunities.length === 0 ? (
-                    <div className="dash-empty">
-                      <p>Ende nuk ke bërë aplikime.</p>
-                      <button
-                        className="dash-btn primary"
-                        onClick={() => navigate("/opportunities")}
-                      >
-                        Shfleto Mundësitë <FaArrowRight />
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="dash-list">
-                      {stats.appliedOpportunities.slice(0, 5).map((app) => (
-                        <div className="dash-item" key={app.id}>
-                          <div className="dash-item-main">
-                            <div className="dash-item-title">{app.title}</div>
-                            <div className="dash-item-sub">
-                              {app.organization} • {app.date}
-                            </div>
-                          </div>
-                          <span className="dash-badge">{app.status}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
+          <div className="dash2-heroRight">
+            <div className="dash2-mini">
+              <div className="dash2-miniLabel">Profili</div>
+              <div className="dash2-miniValue">{completion}%</div>
+              <div className="dash2-miniHint">Plotësim</div>
             </div>
-          </section>
-        </>
-      ) : (
-        <div className="profile-edit-container">
-          <h2>Përditëso Profilin Tuaj</h2>
 
-          <ProfileEditForm
-            initialData={userProfile}
-            userEmail={user?.email}
-            onComplete={handleProfileUpdate}
-            onCancel={() => setShowProfileEdit(false)}
-          />
-        </div>
-      )}
+            <div className="dash2-mini">
+              <div className="dash2-miniLabel">Përputhje</div>
+              <div className="dash2-miniValue">
+                {stats.matchedOpportunities}
+              </div>
+              <div className="dash2-miniHint">Rekomandime</div>
+            </div>
+          </div>
+        </section>
+
+        {/* PROFILE COMPLETION */}
+        <section className="dash2-section">
+          <Card radius="lg" shadow="sm" className="dash2-card dash2-profileCard">
+            <div className="dash2-profileTop">
+              <div className="dash2-profileLeft">
+                <div className="dash2-profileTitle">Profili yt</div>
+                <Badge variant="light" className="dash2-badge">
+                  AI MATCHING
+                </Badge>
+              </div>
+              <div className="dash2-profilePct">{completion}%</div>
+            </div>
+
+            <Progress value={completion} mt="sm" radius="xl" />
+
+            <div className="dash2-profileHint">
+              Sa më i plotë profili, aq më të sakta përputhjet e AI.
+            </div>
+
+            {completion < 70 && (
+              <div className="dash2-tip">
+                <FaRegLightbulb />
+                <span>
+                  Shto <b>aftësi</b> dhe <b>interesa</b> për rezultate më të mira.
+                </span>
+              </div>
+            )}
+          </Card>
+        </section>
+
+        {/* PANELS */}
+        <section className="dash2-panels">
+          <Card radius="lg" shadow="sm" className="dash2-card dash2-panel">
+            <div className="dash2-panelHead">
+              <h3>Top Përputhjet</h3>
+              <Link to="/matches" className="dash2-link">
+                Shiko të gjitha →
+              </Link>
+            </div>
+
+            <TopMatchesWidget matches={topMatches} />
+          </Card>
+
+          <Card radius="lg" shadow="sm" className="dash2-card dash2-panel">
+            <div className="dash2-panelHead">
+              <h3>Aplikime të Bëra</h3>
+              <Link to="/opportunities" className="dash2-link">
+                Gjej mundësi →
+              </Link>
+            </div>
+
+            {stats.appliedOpportunities.length === 0 ? (
+              <div className="dash2-empty">
+                <p>Ende nuk ke bërë aplikime.</p>
+                <button
+                  className="dash2-btn primary"
+                  onClick={() => navigate("/opportunities")}
+                >
+                  Shfleto Mundësitë <FaArrowRight />
+                </button>
+              </div>
+            ) : (
+              <div className="dash2-list">
+                {stats.appliedOpportunities.map((app) => (
+                  <div className="dash2-item" key={app.id}>
+                    <div>
+                      <div className="dash2-itemTitle">{app.title}</div>
+                      <div className="dash2-itemSub">
+                        {app.organization} • {app.date}
+                      </div>
+                    </div>
+                    <span className="dash2-status">{app.status}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Card>
+        </section>
+      </div>
     </div>
   );
 }
