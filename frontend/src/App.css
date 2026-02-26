@@ -1,4 +1,46 @@
-/* RESET & BASE STYLES */
+/* src/App.css */
+/* Updated from your current App.css :contentReference[oaicite:1]{index=1}
+   Goals:
+   - Keep your existing colors + class names (no breaking changes)
+   - Make UI more consistent, modern, and thesis-ready
+*/
+
+/* =========================
+   DESIGN TOKENS
+   ========================= */
+:root {
+  /* Colors */
+  --primary: #083081;
+  --primary-2: #0a47a9;
+  --navy: #00264d;
+
+  --bg: #ffffff;
+  --soft-bg: #f5f8ff;
+  --soft-bg-2: #ebf1ff;
+
+  --text: #333;
+  --muted: #555;
+
+  --border: rgba(15, 23, 42, 0.10);
+  --border-soft: rgba(15, 23, 42, 0.07);
+
+  /* Radius */
+  --r-sm: 8px;
+  --r: 14px;
+  --r-lg: 16px;
+
+  /* Shadows */
+  --shadow-xs: 0 2px 10px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 6px 20px rgba(0, 0, 0, 0.06);
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+
+  /* Layout */
+  --container: 1200px;
+}
+
+/* =========================
+   RESET & BASE
+   ========================= */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -12,13 +54,21 @@ html, body, #root {
 }
 
 body {
-  font-family: 'Segoe UI', Arial, sans-serif;
+  font-family: "Segoe UI", Arial, sans-serif;
   line-height: 1.6;
-  color: #333;
-  background-color: #fff;
+  color: var(--text);
+  background-color: var(--bg);
 }
 
-/* APP LAYOUT */
+/* Better default focus (accessibility) */
+:focus-visible {
+  outline: 3px solid rgba(8, 48, 129, 0.25);
+  outline-offset: 3px;
+}
+
+/* =========================
+   APP LAYOUT
+   ========================= */
 .app {
   display: flex;
   flex-direction: column;
@@ -26,8 +76,10 @@ body {
   width: 100%;
 }
 
+/* Keep your .container class name but make it consistent */
 .container {
   width: 100%;
+  max-width: var(--container);
   margin: 0 auto;
   padding: 0 20px;
 }
@@ -38,22 +90,39 @@ body {
   width: 100%;
 }
 
-/* HEADER */
+/* Full width utilities */
+.full-width {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.home-page, .about-page, .opportunities-page, .dashboard-page {
+  width: 100%;
+}
+
+/* =========================
+   HEADER / NAV
+   ========================= */
 .header {
-  background-color: #00264d;
-  height: 60px;
+  background-color: var(--navy);
+  height: 64px;
   display: flex;
   align-items: center;
   width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
 }
 
 .header-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 2rem;
   width: 100%;
-  max-width: 100%;
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 20px;
 }
 
 /* LOGO */
@@ -71,8 +140,9 @@ body {
 
 .logo-text {
   color: white;
-  font-size: 1.2rem;
-  font-weight: bold;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
 }
 
 /* NAVIGATION */
@@ -80,7 +150,7 @@ nav ul {
   display: flex;
   list-style: none;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1.15rem;
   margin: 0;
   padding: 0;
 }
@@ -88,11 +158,14 @@ nav ul {
 nav ul li a {
   color: white;
   text-decoration: none;
-  transition: color 0.3s ease;
+  font-weight: 600;
+  opacity: 0.92;
+  transition: opacity 0.2s ease, color 0.2s ease;
 }
 
 nav ul li a:hover {
   color: #b1cfef;
+  opacity: 1;
 }
 
 nav ul li button {
@@ -101,23 +174,33 @@ nav ul li button {
   color: white;
   cursor: pointer;
   font-size: 1rem;
+  font-weight: 700;
+  opacity: 0.92;
+  transition: opacity 0.2s ease, color 0.2s ease;
+}
+
+nav ul li button:hover {
+  color: #b1cfef;
+  opacity: 1;
 }
 
 /* HYR BUTTON */
 .nav-auth-button {
   background-color: white;
-  color: #083081;
-  padding: 0.5rem 1.2rem;
-  font-weight: bold;
+  color: var(--primary);
+  padding: 0.55rem 1.15rem;
+  font-weight: 800;
   font-size: 0.95rem;
-  border-radius: 6px;
+  border-radius: 999px; /* more modern pill */
   text-decoration: none;
-  transition: all 0.3s ease;
+  border: 1px solid rgba(255,255,255,0.15);
+  transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
 }
 
 .nav-auth-button:hover {
   background-color: #b1cfef;
-  color: #00264d;
+  color: var(--navy);
+  transform: translateY(-1px);
 }
 
 /* DROPDOWN MENU */
@@ -125,7 +208,7 @@ nav ul li button {
   background: none;
   border: none;
   color: white;
-  font-weight: bold;
+  font-weight: 800;
   cursor: pointer;
   font-size: 0.95rem;
   position: relative;
@@ -138,36 +221,42 @@ nav ul li button {
 .dropdown-menu {
   position: absolute;
   right: 0;
-  top: 36px;
+  top: 42px;
   background: white;
-  color: #083081;
-  border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  color: var(--primary);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
   z-index: 999;
-  min-width: 160px;
+  min-width: 170px;
   padding: 0.5rem 0;
+  border: 1px solid var(--border-soft);
+  overflow: hidden;
 }
 
 .dropdown-menu li {
-  padding: 0.5rem 1rem;
+  padding: 0.55rem 1rem;
   cursor: pointer;
 }
 
 .dropdown-menu li:hover {
-  background-color: #f0f0f0;
+  background-color: #f0f4ff;
 }
 
-.dropdown-menu li a, .dropdown-menu li button {
-  color: #083081;
+.dropdown-menu li a,
+.dropdown-menu li button {
+  color: var(--primary);
   text-decoration: none;
   width: 100%;
   display: block;
   background: none;
   border: none;
   text-align: left;
+  font-weight: 700;
 }
 
-/* FOOTER */
+/* =========================
+   FOOTER
+   ========================= */
 .footer {
   background-color: #333;
   color: white;
@@ -177,40 +266,49 @@ nav ul li button {
   width: 100%;
 }
 
-/* BUTTONS */
+/* =========================
+   BUTTONS (shared)
+   ========================= */
 .button {
-  display: inline-block;
-  padding: 0.6rem 1.2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0.65rem 1.2rem;
   font-size: 0.95rem;
   margin-right: 1rem;
-  border-radius: 6px;
+  border-radius: 999px; /* modern pill */
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 800;
   cursor: pointer;
-  border: none;
-  transition: all 0.3s ease;
+  border: 1px solid var(--border);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
 }
 
 .button.primary {
-  background-color: #083081;
+  background-color: var(--primary);
   color: white;
+  border-color: rgba(8, 48, 129, 0.25);
+  box-shadow: 0 10px 22px rgba(8, 48, 129, 0.18);
 }
 
 .button.primary:hover {
-  background-color: #0a47a9;
-  transform: scale(1.05);
+  background-color: var(--primary-2);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px rgba(8, 48, 129, 0.22);
 }
 
 .button.secondary {
   background-color: transparent;
-  border: 2px solid #083081;
-  color: #083081;
+  border: 2px solid var(--primary);
+  color: var(--primary);
 }
 
 .button.secondary:hover {
-  background-color: #083081;
+  background-color: var(--primary);
   color: white;
-  transform: scale(1.05);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px rgba(8, 48, 129, 0.18);
 }
 
 .cta-buttons {
@@ -218,64 +316,71 @@ nav ul li button {
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
-  max-width: 400px;
+  max-width: 520px;
 }
 
-/* HERO SECTION */
+/* =========================
+   HERO SECTION
+   (kept compatible with your classes)
+   ========================= */
 .hero-section {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 4rem 2rem;
-  background-color: #f8f9fa;
+  padding: 4rem 1.5rem;
   flex-wrap: wrap;
   width: 100%;
-  background: linear-gradient(135deg, #f5f8ff 0%, #ebf1ff 100%);
   min-height: 80vh;
   text-align: center;
+
+  background: linear-gradient(135deg, var(--soft-bg) 0%, var(--soft-bg-2) 100%);
 }
 
 .hero-content {
   flex: 1;
   min-width: 300px;
   padding-left: 0;
-  max-width: 1200px;
+  max-width: var(--container);
   margin: 0 auto;
 }
 
 .hero-content h1 {
-  font-size: 3.5rem;
-  margin-bottom: 1rem;
-  color: #083081;
-  font-weight: 800;
-  background: linear-gradient(90deg, #083081 0%, #1a5dc7 100%);
+  font-size: clamp(2.6rem, 4.3vw, 3.5rem);
+  margin-bottom: 1.5rem;
+  font-weight: 900;
+  line-height: 1.15;
+
+  color: var(--primary);
+  background: linear-gradient(90deg, var(--primary) 0%, #1a5dc7 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  margin-bottom: 1.5rem;
-  line-height: 1.2;
 }
 
 .hero-content p {
-  font-size: 1.5rem;
-  color: #555;
-  margin-bottom: 2.5rem;
-  line-height: 1.6;
+  font-size: clamp(1.05rem, 2vw, 1.5rem);
+  color: var(--muted);
+  margin-bottom: 2.2rem;
+  line-height: 1.7;
 }
 
-/* HOW IT WORKS */
+/* =========================
+   HOW IT WORKS
+   ========================= */
 .how-it-works {
-  padding: 5rem 2rem;
+  padding: 5rem 1.5rem;
   text-align: center;
   background: white;
   width: 100%;
 }
 
 .how-it-works h2 {
-  font-size: 2.5rem;
-  color: #083081;
+  font-size: clamp(1.9rem, 3vw, 2.5rem);
+  color: var(--primary);
   margin-bottom: 3rem;
   position: relative;
   display: inline-block;
+  font-weight: 900;
+  letter-spacing: -0.02em;
 }
 
 .how-it-works h2:after {
@@ -283,67 +388,73 @@ nav ul li button {
   position: absolute;
   width: 80px;
   height: 4px;
-  background: #083081;
+  background: var(--primary);
   bottom: -15px;
   left: 50%;
   transform: translateX(-50%);
-  border-radius: 2px;
+  border-radius: 999px;
 }
 
 .steps-container {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 2.5rem;
+  gap: 2rem;
   margin-top: 3rem;
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
+  max-width: var(--container);
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .step {
-  background: #f8f9fa;
-  padding: 2.5rem;
-  border-radius: 16px;
-  width: 300px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background: #fff;
+  padding: 2.25rem;
+  border-radius: var(--r-lg);
+  width: 320px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-soft);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .step:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+  transform: translateY(-8px);
+  box-shadow: var(--shadow);
 }
 
 .step-number {
-  background: #083081;
+  background: var(--primary);
   color: white;
-  width: 50px;
-  height: 50px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 1.5rem;
-  font-weight: bold;
+  font-weight: 900;
   font-size: 1.5rem;
-  box-shadow: 0 4px 10px rgba(8, 48, 129, 0.3);
+  box-shadow: 0 6px 16px rgba(8, 48, 129, 0.22);
 }
 
-/* FEATURES SECTION */
+/* =========================
+   FEATURES SECTION
+   ========================= */
 .features-section {
-  padding: 5rem 2rem;
-  background: linear-gradient(135deg, #f5f8ff 0%, #ebf1ff 100%);
+  padding: 5rem 1.5rem;
+  background: linear-gradient(135deg, var(--soft-bg) 0%, var(--soft-bg-2) 100%);
   text-align: center;
   width: 100%;
 }
 
 .features-section h2 {
-  font-size: 2.5rem;
-  color: #083081;
+  font-size: clamp(1.9rem, 3vw, 2.5rem);
+  color: var(--primary);
   margin-bottom: 3rem;
   position: relative;
   display: inline-block;
+  font-weight: 900;
+  letter-spacing: -0.02em;
 }
 
 .features-section h2:after {
@@ -351,43 +462,47 @@ nav ul li button {
   position: absolute;
   width: 80px;
   height: 4px;
-  background: #083081;
+  background: var(--primary);
   bottom: -15px;
   left: 50%;
   transform: translateX(-50%);
-  border-radius: 2px;
+  border-radius: 999px;
 }
 
 .features-grid {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 2.5rem;
+  gap: 2rem;
   margin-top: 3rem;
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
+  max-width: var(--container);
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .feature {
   background: white;
-  padding: 2.5rem;
-  border-radius: 16px;
-  width: 280px;
+  padding: 2.25rem;
+  border-radius: var(--r-lg);
+  width: 290px;
   min-height: 280px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-soft);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .feature:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+  transform: translateY(-8px);
+  box-shadow: var(--shadow);
 }
 
-/* PROGRESS BAR (FOR STATS) */
+/* =========================
+   PROGRESS BAR (FOR STATS)
+   ========================= */
 .stat-card {
   text-align: center;
   margin: 1.5rem;
@@ -397,7 +512,7 @@ nav ul li button {
 
 .progress-container {
   background: #e0e0e0;
-  border-radius: 8px;
+  border-radius: 999px;
   overflow: hidden;
   height: 12px;
   margin-top: 0.5rem;
@@ -405,39 +520,33 @@ nav ul li button {
 
 .progress-bar {
   height: 100%;
-  background-color: #083081;
+  background-color: var(--primary);
   transition: width 1s ease-in-out;
 }
 
-/* Full width utilities */
-.full-width {
-  width: 100% !important;
-  max-width: 100% !important;
-}
-
-.home-page, .about-page, .opportunities-page, .dashboard-page {
-  width: 100%;
-}
-
-/* Dashboard Styles */
+/* =========================
+   DASHBOARD STYLES
+   (kept compatible; lightly polished)
+   ========================= */
 .dashboard-container {
-  max-width: 1200px;
+  max-width: var(--container);
   margin: 0 auto;
-  padding: 2rem;
+  padding: 2rem 20px;
 }
 
 .dashboard-header {
-  margin-bottom: 2.5rem;
+  margin-bottom: 2.25rem;
 }
 
 .welcome-section {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1.2rem;
   background: linear-gradient(135deg, #f0f4ff 0%, #f5f8ff 100%);
-  padding: 1.8rem;
-  border-radius: 15px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  padding: 1.6rem;
+  border-radius: 16px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-soft);
 }
 
 .user-avatar {
@@ -447,17 +556,18 @@ nav ul li button {
   background-color: #ffffff;
   border-radius: 50%;
   padding: 10px;
-  box-shadow: 0 4px 10px rgba(8, 48, 129, 0.2);
+  box-shadow: 0 6px 16px rgba(8, 48, 129, 0.18);
 }
 
 .welcome-text h2 {
   margin: 0;
-  color: #083081;
+  color: var(--primary);
   font-size: 1.8rem;
+  font-weight: 900;
 }
 
 .welcome-text p {
-  margin: 5px 0 0;
+  margin: 6px 0 0;
   color: #666;
 }
 
@@ -465,21 +575,21 @@ nav ul li button {
   display: flex;
   align-items: center;
   gap: 8px;
-  background-color: #083081;
+  background-color: var(--primary);
   color: white;
   border: none;
-  border-radius: 8px;
-  padding: 10px 18px;
-  font-weight: 600;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-weight: 800;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
   margin-left: auto;
 }
 
 .edit-profile-button:hover {
-  background-color: #0a47a9;
-  transform: translateY(-3px);
-  box-shadow: 0 6px 15px rgba(8, 48, 129, 0.2);
+  background-color: var(--primary-2);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px rgba(8, 48, 129, 0.18);
 }
 
 .dashboard-content {
@@ -491,25 +601,26 @@ nav ul li button {
 .dashboard-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 1.5rem;
+  gap: 1.25rem;
   margin-bottom: 1rem;
   width: 100%;
 }
 
 .dashboard-card {
   background-color: white;
-  border-radius: 15px;
-  padding: 1.8rem;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  border-radius: 16px;
+  padding: 1.6rem;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-soft);
   display: flex;
   align-items: flex-start;
-  gap: 1.2rem;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  gap: 1.1rem;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .dashboard-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow);
 }
 
 .card-icon {
@@ -517,10 +628,10 @@ nav ul li button {
   align-items: center;
   justify-content: center;
   background-color: #f0f4ff;
-  color: #083081;
-  width: 55px;
-  height: 55px;
-  border-radius: 12px;
+  color: var(--primary);
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
   font-size: 1.4rem;
 }
 
@@ -529,13 +640,14 @@ nav ul li button {
 }
 
 .card-content h3 {
-  margin: 0 0 12px;
-  color: #083081;
-  font-size: 1.3rem;
+  margin: 0 0 10px;
+  color: var(--primary);
+  font-size: 1.25rem;
+  font-weight: 900;
 }
 
 .card-content p {
-  margin: 0 0 18px;
+  margin: 0 0 16px;
   color: #666;
   font-size: 1rem;
 }
@@ -544,36 +656,39 @@ nav ul li button {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background-color: #083081;
+  background-color: var(--primary);
   color: white;
   border: none;
-  padding: 10px 18px;
-  border-radius: 8px;
+  padding: 10px 16px;
+  border-radius: 999px;
   font-size: 0.9rem;
-  font-weight: 600;
+  font-weight: 800;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.2s ease, transform 0.2s ease;
   text-decoration: none;
 }
 
 .card-button:hover {
-  background-color: #0a47a9;
+  background-color: var(--primary-2);
+  transform: translateY(-1px);
 }
 
 .dashboard-activity,
 .dashboard-applications {
   background-color: white;
-  border-radius: 15px;
-  padding: 1.8rem;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  border-radius: 16px;
+  padding: 1.6rem;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-soft);
   width: 100%;
 }
 
 .dashboard-activity h3,
 .dashboard-applications h3 {
-  margin: 0 0 1.5rem;
-  color: #083081;
-  font-size: 1.3rem;
+  margin: 0 0 1.25rem;
+  color: var(--primary);
+  font-size: 1.25rem;
+  font-weight: 900;
   padding-bottom: 0.8rem;
   border-bottom: 1px solid #f0f0f0;
 }
@@ -581,14 +696,14 @@ nav ul li button {
 .activity-list {
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
+  gap: 1.1rem;
 }
 
 .activity-item {
   display: flex;
   align-items: flex-start;
   gap: 1rem;
-  padding-bottom: 1.2rem;
+  padding-bottom: 1.1rem;
   border-bottom: 1px solid #f5f5f5;
 }
 
@@ -600,7 +715,7 @@ nav ul li button {
 .activity-dot {
   width: 10px;
   height: 10px;
-  background-color: #083081;
+  background-color: var(--primary);
   border-radius: 50%;
   margin-top: 8px;
 }
@@ -642,20 +757,22 @@ nav ul li button {
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  border-radius: 10px;
+  border-radius: 12px;
   background-color: #f8f9fa;
-  transition: transform 0.2s ease;
+  border: 1px solid rgba(0,0,0,0.04);
+  transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
 .application-item:hover {
-  transform: translateX(5px);
+  transform: translateX(4px);
   background-color: #f0f4ff;
 }
 
 .application-info h4 {
   margin: 0 0 5px;
-  color: #083081;
-  font-size: 1.1rem;
+  color: var(--primary);
+  font-size: 1.05rem;
+  font-weight: 900;
 }
 
 .application-info p {
@@ -676,41 +793,37 @@ nav ul li button {
   padding: 6px 12px;
   background-color: #4CAF50;
   color: white;
-  border-radius: 20px;
+  border-radius: 999px;
   font-size: 0.85rem;
-  font-weight: 500;
+  font-weight: 700;
 }
 
 /* Profile edit container */
 .profile-edit-container {
   background-color: white;
-  border-radius: 15px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
   padding: 2rem;
   animation: fadeIn 0.3s ease;
+  border: 1px solid var(--border-soft);
 }
 
 .profile-edit-container h2 {
   text-align: center;
-  color: #083081;
+  color: var(--primary);
   margin-bottom: 1.5rem;
   font-size: 1.8rem;
+  font-weight: 900;
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* Authenticated User Welcome Banner */
 .welcome-banner {
-  background: linear-gradient(135deg, #083081 0%, #1a56c5 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, #1a56c5 100%);
   color: white;
   padding: 4rem 2rem;
   text-align: center;
@@ -725,13 +838,13 @@ nav ul li button {
 .welcome-banner h1 {
   font-size: 2.5rem;
   margin-bottom: 1rem;
-  font-weight: 700;
+  font-weight: 900;
 }
 
 .welcome-banner p {
   font-size: 1.2rem;
   line-height: 1.6;
-  opacity: 0.9;
+  opacity: 0.92;
 }
 
 /* Success Message */
@@ -739,7 +852,7 @@ nav ul li button {
   background-color: #d4edda;
   color: #155724;
   padding: 1.2rem;
-  border-radius: 8px;
+  border-radius: 12px;
   margin: 1rem auto;
   max-width: 800px;
   display: flex;
@@ -747,7 +860,8 @@ nav ul li button {
   justify-content: center;
   gap: 1rem;
   text-align: center;
-  font-weight: 500;
+  font-weight: 700;
+  border: 1px solid rgba(46, 125, 50, 0.18);
 }
 
 .success-icon {
@@ -757,7 +871,7 @@ nav ul li button {
 
 /* Impact Section */
 .impact-section {
-  background: #f5f8ff;
+  background: var(--soft-bg);
   padding: 4rem 1.5rem;
 }
 
@@ -780,24 +894,26 @@ nav ul li button {
   min-width: 210px;
   background: white;
   padding: 2rem 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s ease;
+  border-radius: 14px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-soft);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .impact-stat:hover {
-  transform: translateY(-10px);
+  transform: translateY(-8px);
+  box-shadow: var(--shadow);
 }
 
 .stat-number {
   font-size: 2.5rem;
-  font-weight: bold;
-  color: #083081;
+  font-weight: 1000;
+  color: var(--primary);
   margin-bottom: 0.5rem;
 }
 
 .stat-label {
-  color: #555;
+  color: var(--muted);
   font-size: 1rem;
 }
 
@@ -806,39 +922,41 @@ nav ul li button {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  background: #083081;
+  background: var(--primary);
   color: white;
   padding: 12px 24px;
-  border-radius: 50px;
+  border-radius: 999px;
   text-decoration: none;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(8, 48, 129, 0.3);
+  font-weight: 800;
+  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 10px 26px rgba(8, 48, 129, 0.22);
 }
 
 .view-all-button:hover {
   background: #1a56c5;
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(8, 48, 129, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(8, 48, 129, 0.26);
 }
 
 .button-icon {
-  transition: transform 0.3s ease;
+  transition: transform 0.2s ease;
 }
 
 .view-all-button:hover .button-icon {
-  transform: translateX(5px);
+  transform: translateX(4px);
 }
 
-/* Enhanced Opportunities Page Styles */
+/* =========================
+   OPPORTUNITIES PAGE
+   (kept compatible; cleaned small bits)
+   ========================= */
 .opportunities-container {
-  max-width: 1200px;
+  max-width: var(--container);
   margin: 0 auto;
   padding: 30px 20px;
-  font-family: 'Segoe UI', Arial, sans-serif;
+  font-family: "Segoe UI", Arial, sans-serif;
 }
 
-/* Header styles */
 .opportunities-header {
   text-align: center;
   margin-bottom: 40px;
@@ -846,9 +964,9 @@ nav ul li button {
 
 .opportunities-header h1 {
   font-size: 2.5rem;
-  color: #083081;
+  color: var(--primary);
   margin-bottom: 8px;
-  font-weight: 700;
+  font-weight: 900;
   position: relative;
   display: inline-block;
 }
@@ -858,16 +976,16 @@ nav ul li button {
   position: absolute;
   width: 80px;
   height: 4px;
-  background: #083081;
+  background: var(--primary);
   bottom: -12px;
   left: 50%;
   transform: translateX(-50%);
-  border-radius: 2px;
+  border-radius: 999px;
 }
 
 .opportunities-header p {
   font-size: 1.1rem;
-  color: #555;
+  color: var(--muted);
   margin-top: 20px;
 }
 
@@ -890,7 +1008,7 @@ nav ul li button {
   left: 16px;
   top: 50%;
   transform: translateY(-50%);
-  color: #083081;
+  color: var(--primary);
   font-size: 18px;
 }
 
@@ -898,16 +1016,16 @@ nav ul li button {
   width: 100%;
   padding: 14px 14px 14px 45px;
   border: 1px solid #e0e0e0;
-  border-radius: 30px;
+  border-radius: 999px;
   font-size: 16px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
+  box-shadow: var(--shadow-xs);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .search-input:focus {
   outline: none;
-  border-color: #083081;
-  box-shadow: 0 4px 15px rgba(8, 48, 129, 0.15);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(8, 48, 129, 0.12);
 }
 
 .filter-toggle {
@@ -915,39 +1033,35 @@ nav ul li button {
   align-items: center;
   gap: 8px;
   background: #f0f4ff;
-  color: #083081;
-  border: none;
-  border-radius: 30px;
+  color: var(--primary);
+  border: 1px solid rgba(8,48,129,0.12);
+  border-radius: 999px;
   padding: 12px 20px;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 800;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
 .filter-toggle:hover {
   background: #e0e8ff;
+  transform: translateY(-1px);
 }
 
-/* Expanded filters section */
+/* Expanded filters */
 .expanded-filters {
   background: #f8f9fa;
-  border-radius: 15px;
+  border-radius: 16px;
   padding: 20px;
   margin-bottom: 25px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-soft);
   animation: slideDown 0.3s ease;
 }
 
 @keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .filter-section {
@@ -958,7 +1072,7 @@ nav ul li button {
   font-size: 16px;
   color: #444;
   margin-bottom: 12px;
-  font-weight: 600;
+  font-weight: 900;
 }
 
 .filter-options {
@@ -973,29 +1087,30 @@ nav ul li button {
   gap: 6px;
   background: white;
   padding: 8px 15px;
-  border-radius: 20px;
+  border-radius: 999px;
   font-size: 14px;
   color: #555;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.2s ease;
   border: 1px solid #e0e0e0;
 }
 
 .filter-option:hover {
   background: #f0f4ff;
   border-color: #c0d0f0;
+  transform: translateY(-1px);
 }
 
 .filter-option.active {
-  background: #083081;
+  background: var(--primary);
   color: white;
-  border-color: #083081;
+  border-color: var(--primary);
 }
 
 .reset-filters {
   background: none;
   border: none;
-  color: #083081;
+  color: var(--primary);
   font-size: 14px;
   text-decoration: underline;
   cursor: pointer;
@@ -1011,8 +1126,8 @@ nav ul li button {
 }
 
 .opportunities-count strong {
-  color: #083081;
-  font-weight: 600;
+  color: var(--primary);
+  font-weight: 900;
 }
 
 /* Opportunities grid */
@@ -1024,10 +1139,10 @@ nav ul li button {
 
 .opportunity-card {
   background: white;
-  border-radius: 15px;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -1035,8 +1150,8 @@ nav ul li button {
 }
 
 .opportunity-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+  transform: translateY(-6px);
+  box-shadow: var(--shadow);
 }
 
 .opportunity-card-header {
@@ -1049,19 +1164,21 @@ nav ul li button {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  background: #083081;
+  background: var(--primary);
   color: white;
   padding: 5px 12px;
-  border-radius: 20px;
+  border-radius: 999px;
   font-size: 13px;
   margin-bottom: 10px;
+  font-weight: 800;
 }
 
 .opportunity-title {
   font-size: 18px;
-  color: #083081;
+  color: var(--primary);
   margin: 8px 0;
   line-height: 1.4;
+  font-weight: 900;
 }
 
 .opportunity-card-content {
@@ -1091,14 +1208,14 @@ nav ul li button {
 }
 
 .detail-icon {
-  color: #083081;
+  color: var(--primary);
   font-size: 16px;
   min-width: 16px;
 }
 
 .spots-left {
-  color: #2e7d32; /* Green color for available spots */
-  font-weight: 500;
+  color: #2e7d32;
+  font-weight: 700;
 }
 
 .opportunity-card-footer {
@@ -1110,21 +1227,22 @@ nav ul li button {
 .view-details-button {
   display: block;
   width: 100%;
-  background: #083081;
+  background: var(--primary);
   color: white;
   text-align: center;
   padding: 12px;
-  border-radius: 8px;
-  font-weight: 600;
+  border-radius: 12px;
+  font-weight: 900;
   text-decoration: none;
-  transition: background 0.2s ease;
+  transition: background 0.2s ease, transform 0.2s ease;
 }
 
 .view-details-button:hover {
   background: #0c4da2;
+  transform: translateY(-1px);
 }
 
-/* Loading state */
+/* Loading / Errors */
 .opportunities-loading {
   display: flex;
   flex-direction: column;
@@ -1139,13 +1257,13 @@ nav ul li button {
   font-size: 16px;
 }
 
-/* Error and no results */
 .error-message, .no-results {
   text-align: center;
   padding: 40px;
   background: #f8f9fa;
-  border-radius: 15px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  border-radius: 16px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-soft);
   margin: 30px auto;
   max-width: 600px;
 }
@@ -1158,14 +1276,20 @@ nav ul li button {
 
 .retry-button {
   display: inline-block;
-  background: #083081;
+  background: var(--primary);
   color: white;
   border: none;
   padding: 10px 20px;
-  border-radius: 8px;
-  font-weight: 600;
+  border-radius: 12px;
+  font-weight: 900;
   margin-top: 15px;
   cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.retry-button:hover {
+  background: var(--primary-2);
+  transform: translateY(-1px);
 }
 
 .loading-container {
@@ -1176,13 +1300,10 @@ nav ul li button {
   width: 100%;
 }
 
-/* Success Modal */
+/* Modal */
 .modal-backdrop {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   background-color: rgba(0, 0, 0, 0.4);
   display: flex;
   justify-content: center;
@@ -1193,17 +1314,19 @@ nav ul li button {
 .modal-box {
   background: #fff;
   padding: 30px;
-  border-radius: 14px;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
-  max-width: 400px;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  max-width: 420px;
   width: 90%;
   text-align: center;
   animation: slideUp 0.3s ease;
+  border: 1px solid var(--border-soft);
 }
 
 .modal-box h2 {
-  color: #0a2a43;
+  color: var(--primary);
   margin-bottom: 12px;
+  font-weight: 900;
 }
 
 .modal-box p {
@@ -1212,31 +1335,30 @@ nav ul li button {
 }
 
 .modal-box button {
-  background-color: #0a2a43;
+  background-color: var(--primary);
   color: white;
   padding: 10px 24px;
   border: none;
-  border-radius: 8px;
+  border-radius: 999px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  font-weight: 900;
+  transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
 .modal-box button:hover {
-  background-color: #0c3c66;
+  background-color: var(--primary-2);
+  transform: translateY(-1px);
 }
 
 @keyframes slideUp {
-  from {
-    transform: translateY(20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0px);
-    opacity: 1;
-  }
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0px); opacity: 1; }
 }
 
-/* Profile Setup Form Styles */
+/* =========================
+   PROFILE SETUP FORM
+   (kept compatible)
+   ========================= */
 .profile-setup-section {
   width: 100%;
   padding: 2rem;
@@ -1249,16 +1371,18 @@ nav ul li button {
   max-width: 800px;
   margin: 0 auto;
   background-color: white;
-  border-radius: 15px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-soft);
   padding: 2rem;
 }
 
 .profile-setup-container h2 {
   text-align: center;
-  color: #083081;
+  color: var(--primary);
   margin-bottom: 1.5rem;
   font-size: 1.8rem;
+  font-weight: 900;
 }
 
 .profile-setup-form {
@@ -1281,7 +1405,8 @@ nav ul li button {
   position: relative;
 }
 
-.step-number {
+/* Note: you already have .step-number used elsewhere; keep it consistent */
+.progress-step .step-number {
   width: 36px;
   height: 36px;
   border-radius: 50%;
@@ -1289,13 +1414,13 @@ nav ul li button {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
+  font-weight: 900;
   color: #666;
   transition: all 0.3s ease;
 }
 
 .progress-step.active .step-number {
-  background-color: #083081;
+  background-color: var(--primary);
   color: white;
 }
 
@@ -1303,12 +1428,12 @@ nav ul li button {
   margin-top: 0.5rem;
   font-size: 0.85rem;
   color: #666;
-  font-weight: 500;
+  font-weight: 700;
 }
 
 .progress-step.active .step-label {
-  color: #083081;
-  font-weight: 600;
+  color: var(--primary);
+  font-weight: 900;
 }
 
 .progress-line {
@@ -1326,9 +1451,10 @@ nav ul li button {
 }
 
 .step-title {
-  color: #083081;
+  color: var(--primary);
   margin-bottom: 1rem;
   font-size: 1.4rem;
+  font-weight: 900;
 }
 
 .step-description {
@@ -1343,13 +1469,6 @@ nav ul li button {
   margin-bottom: 1.5rem;
 }
 
-@media (max-width: 768px) {
-  .form-row {
-    flex-direction: column;
-    gap: 1rem;
-  }
-}
-
 .form-group {
   flex: 1;
   margin-bottom: 1.5rem;
@@ -1358,14 +1477,14 @@ nav ul li button {
 .form-group label {
   display: flex;
   align-items: center;
-  font-weight: 600;
+  font-weight: 800;
   margin-bottom: 0.5rem;
   color: #333;
 }
 
 .form-icon {
   margin-right: 0.5rem;
-  color: #083081;
+  color: var(--primary);
 }
 
 .form-group input,
@@ -1373,16 +1492,16 @@ nav ul li button {
   width: 100%;
   padding: 0.75rem;
   border: 1px solid #ddd;
-  border-radius: 8px;
+  border-radius: 12px;
   font-size: 1rem;
-  transition: border-color 0.3s;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #083081;
-  box-shadow: 0 0 0 2px rgba(8, 48, 129, 0.1);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(8, 48, 129, 0.10);
 }
 
 .form-group input.error,
@@ -1404,18 +1523,6 @@ nav ul li button {
   margin-top: 0.6rem;
 }
 
-@media (max-width: 768px) {
-  .checkbox-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 480px) {
-  .checkbox-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
 .checkbox-item {
   display: flex;
   align-items: center;
@@ -1430,7 +1537,7 @@ nav ul li button {
 .checkbox-item label {
   cursor: pointer;
   margin-bottom: 0;
-  font-weight: normal;
+  font-weight: 600;
 }
 
 /* Form Actions */
@@ -1442,12 +1549,13 @@ nav ul li button {
 
 .back-button,
 .next-button,
-.submit-button {
+.submit-button,
+.cancel-button {
   padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-weight: 600;
+  border-radius: 999px;
+  font-weight: 900;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
   border: none;
 }
 
@@ -1458,64 +1566,61 @@ nav ul li button {
 
 .back-button:hover {
   background-color: #d0d0d0;
+  transform: translateY(-1px);
 }
 
 .next-button,
 .submit-button {
-  background-color: #083081;
+  background-color: var(--primary);
   color: white;
+  box-shadow: 0 10px 22px rgba(8, 48, 129, 0.18);
 }
 
 .next-button:hover,
 .submit-button:hover {
-  background-color: #0a47a9;
+  background-color: var(--primary-2);
   transform: translateY(-2px);
+  box-shadow: 0 14px 28px rgba(8, 48, 129, 0.22);
 }
 
 .back-button:disabled,
 .next-button:disabled,
-.submit-button:disabled {
+.submit-button:disabled,
+.cancel-button:disabled {
   background-color: #cccccc;
   cursor: not-allowed;
   transform: none;
+  box-shadow: none;
 }
 
 .cancel-button {
   background-color: #e0e0e0;
   color: #333;
-  border: none;
-  border-radius: 8px;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 8px;
-  transition: background-color 0.3s;
 }
 
 .cancel-button:hover {
   background-color: #d0d0d0;
-}
-
-.cancel-button:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
+  transform: translateY(-1px);
 }
 
 .success-message {
   background-color: #d4edda;
   color: #155724;
   padding: 12px 16px;
-  border-radius: 8px;
+  border-radius: 12px;
   margin-bottom: 1.5rem;
-  font-weight: 500;
+  font-weight: 800;
   text-align: center;
   animation: fadeIn 0.4s;
+  border: 1px solid rgba(46, 125, 50, 0.18);
 }
 
-/* Responsive Design */
+/* =========================
+   RESPONSIVE
+   ========================= */
 @media screen and (max-width: 768px) {
   .hero-section {
     flex-direction: column;
@@ -1535,25 +1640,24 @@ nav ul li button {
     align-items: center;
   }
 
+  /* IMPORTANT: do NOT force nav ul column always (this can break desktop nav).
+     Keep it for mobile only as you already had. */
   nav ul {
     flex-direction: column;
     align-items: center;
+    gap: 12px;
   }
 
   nav ul li {
-    margin: 10px 0;
+    margin: 6px 0;
   }
 
   .cta-buttons {
     justify-content: center;
   }
 
-  .dashboard-content {
-    grid-template-columns: 1fr;
-  }
-
   .dashboard-container {
-    padding: 1rem;
+    padding: 1rem 16px;
   }
 
   .welcome-section {
@@ -1591,22 +1695,28 @@ nav ul li button {
   }
 
   .calendar-page h2 {
-    color: #083081;
+    color: var(--primary);
     font-size: 2rem;
     margin-bottom: 1rem;
   }
+
+  .header-container {
+    padding: 0 14px;
+  }
 }
 
-/* ===== DASHBOARD (Mantine + Custom Style Alignment) ===== */
+/* =========================
+   Mantine alignment helpers
+   ========================= */
 .dashboard-mantine-card {
   border-radius: 15px !important;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
+  box-shadow: var(--shadow-sm) !important;
   border: 1px solid #f0f0f0 !important;
 }
 
 .dashboard-section-title {
-  color: #083081;
-  font-weight: 700;
+  color: var(--primary);
+  font-weight: 900;
 }
 
 .dashboard-section-subtitle {
@@ -1616,22 +1726,22 @@ nav ul li button {
 
 .dashboard-kpi-number {
   font-size: 2rem;
-  font-weight: 800;
-  color: #083081;
+  font-weight: 1000;
+  color: var(--primary);
   margin-top: 8px;
 }
 
 .dashboard-action-link {
   margin-top: 10px;
-  font-weight: 600;
-  color: #083081;
+  font-weight: 900;
+  color: var(--primary);
   cursor: pointer;
   display: inline-block;
   text-decoration: none;
+  transition: transform 0.2s ease, color 0.2s ease;
 }
 
 .dashboard-action-link:hover {
-  color: #0a47a9;
+  color: var(--primary-2);
   transform: translateX(2px);
-  transition: 0.2s ease;
 }
